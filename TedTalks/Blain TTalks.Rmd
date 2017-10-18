@@ -7,27 +7,27 @@ output: pdf_document
 
 ```{r}
 ### Load required packages:
-library(readr)
+library(stringr)
 library(tidyverse)
 library(tidytext)
 ```
 
 ```{r}
-
-### Read in metadata
+### Read in metadata:
 ted_main <- read_csv("~/skewl/text_analysis/text-mining-in-class-team6/TedTalks/ted_main.csv")
 
-### Read in lecture transcripts
+### Read in lecture transcripts:
 transcripts <- read_csv("~/skewl/text_analysis/text-mining-in-class-team6/TedTalks/transcripts.csv")
 
+### Fix url formatting so the two data sets match:
+transcripts$url = str_replace_all(transcripts$url, pattern = "\r", replacement = "")
 ```
 
 ```{r}
-### Combine the data transorm it to usable form:
-
+### Combine data sets and change to token format for sentiment analysis:
 combined = inner_join(ted_main, transcripts, by = "url")
 
 transcripts_clean = combined %>% unnest_tokens(output = word, input = transcript)
 
-
 ```
+
