@@ -58,7 +58,7 @@ transcripts_bing %>%
 ```
 
 
-# These results are unexpected. We can see that the most positive reult contains just 25 words. Let's rerun the code with a filter that removes the lowest 10 % of word counts.
+#### These results are unexpected. We can see that the most positive reult contains just 25 words. Let's rerun the code with a filter that removes the lowest 10 % of word counts.
 
 
 ```{r}
