@@ -115,6 +115,6 @@ sent_c<-tidy_stone%>%inner_join(get_sentiments("bing"))%>%group_by(chapter)%>%co
 ggplot(sent_c,aes(chapter,n,color=sentiment))+
 geom_line()+
 ylab("frequency") 
-# According to the chart, we find that in each chapter negative words are used more frequently than positive words
+# According to the chart, we find that in each chapter negative words are used more frequently than positive words. At the end of the book, negative words are more common.
 ```
 
