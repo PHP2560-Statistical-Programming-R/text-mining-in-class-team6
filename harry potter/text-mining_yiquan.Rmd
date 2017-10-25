@@ -1,0 +1,72 @@
+---
+title: "Text Analyis"
+output: github_document
+---
+
+
+
+
+# Your mission
+
+Perform text analysis.
+
+## Okay, I need more information
+
+Perform sentiment analysis or topic modeling using text analysis methods as demonstrated in the pre-class work and in the readings.
+
+## Okay, I need even more information.
+
+Do the above. Can't think of a data source?
+
+- `gutenbergr`
+- `AssociatedPress` from the `topicmodels` package
+- `NYTimes` or `USCongress` from the `RTextTools` package
+- Harry Potter Complete 7 Books text
+```{r}
+install.packages("devtools")
+```
+```{r}
+devtools::install_github("bradleyboehmke/harrypotter")
+```
+
+- [State of the Union speeches](https://pradeepadhokshaja.wordpress.com/2017/03/31/scraping-the-web-for-presdential-inaugural-addresses-using-rvest/)
+- Scrape tweets using [`twitteR`](https://www.credera.com/blog/business-intelligence/twitter-analytics-using-r-part-1-extract-tweets/)
+
+Analyze the text for sentiment OR topic. **You do not need to do both**. The datacamp courses and [Tidy Text Mining with R](http://tidytextmining.com/) are good starting points for templates to perform this type of analysis, but feel free to *expand beyond these examples*.
+
+# Timelines and Task
+
+
+We will spend the next 2 weeks working on analyzing textual data in R. You will do the following:
+
+- Start with some text based data.
+- Clean data and prepare it for analysis
+- Ask questions about the data
+- Answer these questions with the data using tables and graphics
+- Each group member must have their own unique question that they code the answer for. 
+```{r}
+library(stringr)
+library(tidytext)
+library(dplyr)
+```
+```{r}
+stone=harrypotter::philosophers_stone
+str_length(stone)
+```
+```{r}
+text_df<-data_frame(line=1:17,text=stone)
+stone_df<-text_df%>%unnest_tokens(word,text)
+```
+```{r}
+tidy_stone<-stone_df%>%group_by(word)%>%anti_join(stop_words)%>%count(sort=T)%>%rename(freq=n)%>%ungroup()  ##remove stop word like "the","of".
+```
+```{r}
+library(ggplot2)
+tidy_stone%>%filter(freq>100)%>%mutate(word=reorder(word,freq))%>%ggplot(aes(word,freq))+geom_col()+xlab(NULL)+coord_flip()
+##reorder means converts word from a character that would be plotted in alphabetical order to a factor that will be plotted in order of n.coord_flip flips the coordinates.geom_col makes the barchart.
+```
+```{r}
+stone_sentiment <- stone_df%>%inner_join(get_sentiments("bing"))
+stone_sentiment_count<-stone_sentiment%>%group_by(word)%>%count%>%ungroup()
+stone_sentiment_count%>%filter(n>20)%>%mutate(word=reorder(word,n))%>%ggplot(aes(word,n))+geom_col()+xlab(NULL)+coord_flip()
+```
