@@ -55,10 +55,6 @@ devtools::install_github("bradleyboehmke/harrypotter")
 ```
 
 ```{r}
-load("~/harrypotter/data/chamber_of_secrets.rda")
-```
-
-```{r}
 install.packages("tidytext")
 library(tidytext)
 ```
@@ -66,5 +62,59 @@ library(tidytext)
 ```{r}
 install.packages("stringr")
 library(stringr)
+stone<-harrypotter::philosophers_stone
+```
+
+```{r}
+install.packages("dplyr")
+library(dplyr)
+```
+
+```{r}
+stone_df<-data_frame(chapter=1:17,text=stone)
+tidy_stone<-stone_df%>%unnest_tokens(word,text)
+
+# Remove stop words
+data(stop_words)
+tidy_stone<-tidy_stone%>%anti_join(stop_words)
+
+# Find the most common words in the book
+tidy_stone%>%count(word,sort=T)%>%rename(freq_w=n)
+# The results make sense. Of course, Harry is the most frequently used word in the book.
+```
+
+```{r}
+# Visualize the most common words
+install.packages("ggplot2")
+library(ggplot2)
+tidy_stone %>% 
+  count(word,sort=T)%>%
+  filter(n > 100) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
+```
+
+```{r}
+# What are the most joy words in the book?
+nrcjoy<-get_sentiments("nrc")%>%filter(sentiment=="joy")
+tidy_stone%>%inner_join(nrcjoy)%>%count(word,sort=T)%>%rename(joyword=word)
+
+# What are the most sad words in the book?
+nrcsad<-get_sentiments("nrc")%>%filter(sentiment=="sadness")
+tidy_stone%>%inner_join(nrcsad)%>%count(word,sort=T)%>%rename(sadword=word)
+# We should ignore harry in the sadword column
+```
+
+```{r}
+# Examine how sentiment changes throughout the book
+# Count the negative and positive words appearing in each chapters
+sent_c<-tidy_stone%>%inner_join(get_sentiments("bing"))%>%group_by(chapter)%>%count(sentiment,sort=T)
+ggplot(sent_c,aes(chapter,n,color=sentiment))+
+geom_line()+
+ylab("frequency") 
+# According to the chart, we find that in each chapter negative words are used more frequently than positive words
 ```
 
