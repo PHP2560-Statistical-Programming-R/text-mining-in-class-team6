@@ -179,6 +179,78 @@ tidy_stone%>%
   count(word,sentiment,sort=T)%>%
   acast(word~sentiment,value.var="n",fill=0)%>%
   comparison.cloud(colors=c("#F8766D", "#00BFC4"),
-                   max.words=50)
+                   max.words=50)  
+```
+
+```{r}
+stone_words<-stone_df%>%unnest_tokens(word,text)%>%
+  count(word,sort=T)%>%
+  ungroup()
+
+stone_words<-stone_words%>%
+  mutate(total=sum(n),perc=n/total)
+
+ggplot(stone_words,aes(perc))+
+  geom_histogram(show.legend=F,fill="orange",color="black")+
+  xlim(NA, 0.0009)
+# many words occur rarely and fewer words occur frequently
+```
+
+```{r}
+freq_by_rank<-stone_words%>%mutate(rank=row_number())
+
+freq_by_rank%>%
+  ggplot(aes(rank,perc))+
+  geom_line(size=1.2,alpha=0.8,color="pink2")+
+  scale_x_log10()+
+  scale_y_log10()
+```
+
+```{r}
+stone_idf<-stone_df%>%unnest_tokens(word,text)%>%count(chapter,word,sort=T)%>%
+bind_tf_idf(word,chapter,n)%>%arrange(desc(tf_idf))
+stone_idf
+```
+
+```{r}
+plot_stone<-stone_idf%>%
+  mutate(word=factor(word,levels=rev(unique(word))))
+plot_stone%>%top_n(20)%>%
+  ggplot(aes(word,tf_idf))+
+  geom_col()+
+  labs(x=NULL,y="tf-idf")+
+  coord_flip()
+```
+
+```{r}
+stone_bigrams<-stone_df%>%
+  unnest_tokens(bigram,text,token="ngrams",n=2)
+stone_bigrams %>%
+  count(bigram,sort=T)
+```
+
+```{r}
+install.packages("tidyr")
+library(tidyr)
+
+bigrams_separated<-stone_bigrams%>%
+  separate(bigram,c("word1","word2"),sep=" ")
+
+bigrams_filtered <- bigrams_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+# new bigram counts:
+bigram_counts <- bigrams_filtered %>% 
+  count(word1, word2, sort = TRUE)
+
+bigram_counts
+```
+
+```{r}
+bigrams_united <- bigrams_filtered %>%
+  unite(bigram, word1, word2, sep = " ")
+
+bigrams_united
 ```
 
