@@ -198,9 +198,13 @@ ggplot(stone_words,aes(perc))+
 
 ```{r}
 freq_by_rank<-stone_words%>%mutate(rank=row_number())
+rank_subset<-freq_by_rank%>%filter(rank<500,rank>10)
+
+lm(log10(perc)~log10(rank),data=rank_subset)
 
 freq_by_rank%>%
   ggplot(aes(rank,perc))+
+  geom_abline(intercept = -0.8680,slope=-0.9866,color="gray50",linetype=2)+
   geom_line(size=1.2,alpha=0.8,color="pink2")+
   scale_x_log10()+
   scale_y_log10()
@@ -214,9 +218,10 @@ stone_idf
 
 ```{r}
 plot_stone<-stone_idf%>%
+  arrange(desc(tf_idf))%>%
   mutate(word=factor(word,levels=rev(unique(word))))
 plot_stone%>%top_n(20)%>%
-  ggplot(aes(word,tf_idf))+
+  ggplot(aes(word,tf_idf,fill=chapter))+
   geom_col()+
   labs(x=NULL,y="tf-idf")+
   coord_flip()
@@ -252,5 +257,21 @@ bigrams_united <- bigrams_filtered %>%
   unite(bigram, word1, word2, sep = " ")
 
 bigrams_united
+```
+
+```{r}
+stone_df%>%
+  unnest_tokens(trigram,text,token="ngrams",n=3)%>%
+  separate(trigram,c("word1","word2","word3"),sep=" ")%>%
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word)%>%
+  count(word1, word2, word3, sort = TRUE)
+```
+
+```{r}
+bigrams_filtered%>%
+  filter(word2=="harry")%>%
+  count(chapter,word1,sort=T)
 ```
 
