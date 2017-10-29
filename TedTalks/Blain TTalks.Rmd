@@ -1,0 +1,33 @@
+---
+title: "Ted Talk Analysis"
+author: "Blain Morin"
+date: "October 18, 2017"
+output: pdf_document
+---
+
+```{r}
+### Load required packages:
+library(readr)
+library(tidyverse)
+library(tidytext)
+```
+
+```{r}
+
+### Read in metadata
+ted_main <- read_csv("~/skewl/text_analysis/text-mining-in-class-team6/TedTalks/ted_main.csv")
+
+### Read in lecture transcripts
+transcripts <- read_csv("~/skewl/text_analysis/text-mining-in-class-team6/TedTalks/transcripts.csv")
+
+```
+
+```{r}
+### Combine the data transorm it to usable form:
+
+combined = inner_join(ted_main, transcripts, by = "url")
+
+transcripts_clean = combined %>% unnest_tokens(output = word, input = transcript)
+
+
+```
