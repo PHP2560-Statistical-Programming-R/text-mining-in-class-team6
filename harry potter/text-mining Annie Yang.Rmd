@@ -55,10 +55,6 @@ devtools::install_github("bradleyboehmke/harrypotter")
 ```
 
 ```{r}
-load("~/harrypotter/data/chamber_of_secrets.rda")
-```
-
-```{r}
 install.packages("tidytext")
 library(tidytext)
 ```
@@ -66,5 +62,216 @@ library(tidytext)
 ```{r}
 install.packages("stringr")
 library(stringr)
+stone<-harrypotter::philosophers_stone
+```
+
+```{r}
+install.packages("dplyr")
+library(dplyr)
+```
+
+```{r}
+stone_df<-data_frame(chapter=1:17,text=stone)
+tidy_stone<-stone_df%>%unnest_tokens(word,text)
+
+# Remove stop words
+data(stop_words)
+tidy_stone<-tidy_stone%>%anti_join(stop_words)
+
+# Find the most common words in the book
+tidy_stone%>%count(word,sort=T)%>%rename(freq_w=n)
+# The results make sense. Of course, Harry is the most frequently used word in the book.
+```
+
+```{r}
+# Visualize the most common words
+install.packages("ggplot2")
+library(ggplot2)
+tidy_stone %>% 
+  count(word,sort=T)%>%
+  filter(n > 100) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
+```
+
+```{r}
+# What are the most joy words in the book?
+nrcjoy<-get_sentiments("nrc")%>%filter(sentiment=="joy")
+tidy_stone%>%inner_join(nrcjoy)%>%count(word,sort=T)%>%rename(joyword=word)
+
+# What are the most sad words in the book?
+nrcsad<-get_sentiments("nrc")%>%filter(sentiment=="sadness")
+tidy_stone%>%inner_join(nrcsad)%>%count(word,sort=T)%>%rename(sadword=word)
+# We should ignore harry in the sadword column
+```
+
+```{r}
+# Examine how sentiment changes throughout the book by chapter
+
+# Count the negative and positive words appearing in each chapters
+
+sent_c<-tidy_stone%>%inner_join(get_sentiments("bing"))%>%group_by(chapter)%>%count(sentiment,sort=T)
+ggplot(sent_c,aes(chapter,n,color=sentiment))+
+geom_line()+
+ylab("frequency") 
+
+# According to the chart, we find that in each chapter negative words are used more frequently than positive words. At the end of the book, negative words are more common.
+sent_word<-tidy_stone%>%
+  inner_join(get_sentiments("bing"))%>%
+  count(word,sentiment,sort=T)%>%
+  ungroup()
+sent_word%>%group_by(sentiment)%>%
+  top_n(10)%>%
+  ungroup()%>%
+  mutate(word=reorder(word,n))%>%
+  ggplot(aes(word,n,fill=sentiment))+
+  geom_col(show.legend=F)+
+  facet_wrap(~sentiment,scales="free")+
+  labs(y="contribution to sentiment",
+       x=NULL)+
+  coord_flip()
+
+# Calculate the relative sentiment with ratio
+install.packages("tidyr")
+library(tidyr)
+np_ratio<-sent_c%>%spread(sentiment,n)%>%mutate(ratio=negative/positive)
+ggplot(np_ratio,aes(chapter,ratio))+
+  geom_line(color="darkblue")
+# After analysing the ratio of negative words and positive words, we find that even though the peak appears at chapter 15.
+```
+
+```{r}
+# Examin how sentiment changes throughout the book by section (assume 50 lines construct a section)
+stone_book<-unnest_tokens(stone_df,sentence,text,token="sentences")%>%mutate(linenumber=row_number())%>%ungroup()%>%unnest_tokens(word,sentence)
+book_sent<-stone_book%>%inner_join(get_sentiments("bing"))%>%count(index=linenumber%/%50,sentiment)%>%spread(sentiment,n,fill=0)%>%mutate(sentiment=positive-negative)
+ggplot(book_sent,aes(index,sentiment))+
+  geom_col(fill="orange",show.legend = F)
+# Examine how sentiment changes throughout the chapter
+stone_sentence<-unnest_tokens(stone_df,sentence,text,token="sentences")%>%group_by(chapter)%>%mutate(linenumber=row_number())%>%ungroup()%>%unnest_tokens(word,sentence)
+sentence_sent<-stone_sentence%>%inner_join(get_sentiments("bing"))%>%count(chapter,index=linenumber%/%50,sentiment)%>%spread(sentiment,n,fill=0)%>%mutate(sentiment=positive-negative)
+ggplot(sentence_sent,aes(index,sentiment,fill=chapter))+
+  geom_col(show.legend = F)+
+  facet_wrap(~chapter,ncol=5,scales="free")
+```
+
+```{r}
+install.packages("wordcloud")
+library(wordcloud)
+```
+
+```{r}
+tidy_stone%>%
+  count(word)%>%
+  with(wordcloud(word,n,max.words=100))
+```
+
+```{r}
+install.packages("reshape2")
+library(reshape2)
+```
+
+```{r}
+tidy_stone%>%
+  inner_join(get_sentiments("bing"))%>%
+  count(word,sentiment,sort=T)%>%
+  acast(word~sentiment,value.var="n",fill=0)%>%
+  comparison.cloud(colors=c("#F8766D", "#00BFC4"),
+                   max.words=50)  
+```
+
+```{r}
+stone_words<-stone_df%>%unnest_tokens(word,text)%>%
+  count(word,sort=T)%>%
+  ungroup()
+
+stone_words<-stone_words%>%
+  mutate(total=sum(n),perc=n/total)
+
+ggplot(stone_words,aes(perc))+
+  geom_histogram(show.legend=F,fill="orange",color="black")+
+  xlim(NA, 0.0009)
+# many words occur rarely and fewer words occur frequently
+```
+
+```{r}
+freq_by_rank<-stone_words%>%mutate(rank=row_number())
+rank_subset<-freq_by_rank%>%filter(rank<500,rank>10)
+
+lm(log10(perc)~log10(rank),data=rank_subset)
+
+freq_by_rank%>%
+  ggplot(aes(rank,perc))+
+  geom_abline(intercept = -0.8680,slope=-0.9866,color="gray50",linetype=2)+
+  geom_line(size=1.2,alpha=0.8,color="pink2")+
+  scale_x_log10()+
+  scale_y_log10()
+```
+
+```{r}
+stone_idf<-stone_df%>%unnest_tokens(word,text)%>%count(chapter,word,sort=T)%>%
+bind_tf_idf(word,chapter,n)%>%arrange(desc(tf_idf))
+stone_idf
+```
+
+```{r}
+plot_stone<-stone_idf%>%
+  arrange(desc(tf_idf))%>%
+  mutate(word=factor(word,levels=rev(unique(word))))
+plot_stone%>%top_n(20)%>%
+  ggplot(aes(word,tf_idf,fill=chapter))+
+  geom_col()+
+  labs(x=NULL,y="tf-idf")+
+  coord_flip()
+```
+
+```{r}
+stone_bigrams<-stone_df%>%
+  unnest_tokens(bigram,text,token="ngrams",n=2)
+stone_bigrams %>%
+  count(bigram,sort=T)
+```
+
+```{r}
+install.packages("tidyr")
+library(tidyr)
+
+bigrams_separated<-stone_bigrams%>%
+  separate(bigram,c("word1","word2"),sep=" ")
+
+bigrams_filtered <- bigrams_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+# new bigram counts:
+bigram_counts <- bigrams_filtered %>% 
+  count(word1, word2, sort = TRUE)
+
+bigram_counts
+```
+
+```{r}
+bigrams_united <- bigrams_filtered %>%
+  unite(bigram, word1, word2, sep = " ")
+
+bigrams_united
+```
+
+```{r}
+stone_df%>%
+  unnest_tokens(trigram,text,token="ngrams",n=3)%>%
+  separate(trigram,c("word1","word2","word3"),sep=" ")%>%
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word)%>%
+  count(word1, word2, word3, sort = TRUE)
+```
+
+```{r}
+bigrams_filtered%>%
+  filter(word2=="harry")%>%
+  count(chapter,word1,sort=T)
 ```
 
