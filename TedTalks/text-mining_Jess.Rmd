@@ -41,8 +41,6 @@ We will spend the next 2 weeks working on analyzing textual data in R. You will 
 - Ask questions about the data
 - Answer these questions with the data using tables and graphics
 - Each group member must have their own unique question that they code the answer for. 
-
-
 ----------------------
 ```{r}
 ############### CLEANING #############################
@@ -53,6 +51,7 @@ library(dplyr)
 library(tidytext)
 library(stringr)
 library(rebus)
+
 ##read in main data set
 ted_main <- read_csv("~/text-mining-in-class-team6/TedTalks/ted_main.csv")
 
@@ -62,8 +61,24 @@ transcripts <- read_csv("~/text-mining-in-class-team6/TedTalks/transcripts.csv")
 ###combine data sets
 full_data <- inner_join(ted_main, transcripts, by = "url")
 
+###remove any text in the transcript that is surrounded by parenthesis
+
+for (i in 1:nrow(full_data)){
+  full_data[i, "transcript"] = 
+    str_replace_all(
+      full_data[i, "transcript"],
+      pattern = "\\([^()]+\\)", 
+      " "
+    )
+}
+
+### Convert Unix time to a date:
+
+transcripts_bing = transcripts_bing %>%
+  mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
+
 ######### get main rating for each talk #######
-  
+
 for(i in 1:nrow(full_data)) {
   rating_string <- str_sub(full_data$ratings[i], 2,-2)
   rating_vector <- unlist(strsplit(rating_string, split="}"))
@@ -76,12 +91,13 @@ for(i in 1:nrow(full_data)) {
 
 transcripts_clean <- full_data %>% unnest_tokens(word, transcript)
 
-sentiments <- transcripts_clean %>% inner_join(get_sentiments("nrc")) %>% filter(!sentiment %in% c("positive", "negative"))
-
+sentiments <- transcripts_clean %>% inner_join(get_sentiments("bing")) 
+                  #%>% filter(!word %in% c("like"))
 
 ############### ANALYZING #############################
 
 word_counts <- sentiments %>% 
+  group_by()
   count(max_rating, word)
 
 
@@ -91,14 +107,12 @@ top <- word_counts %>%
   ungroup() %>%
   mutate(word = reorder(word, n))
 
-
 # Use aes() to put words on the x-axis and n on the y-axis
 ggplot(top, aes(word, n, fill = max_rating)) +
   # Make a bar chart with geom_col()
   geom_col(show.legend = FALSE) +
   facet_wrap(~max_rating, scales = "free") + 
   coord_flip()
-
 
 ```
 
