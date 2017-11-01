@@ -41,8 +41,6 @@ We will spend the next 2 weeks working on analyzing textual data in R. You will 
 - Ask questions about the data
 - Answer these questions with the data using tables and graphics
 - Each group member must have their own unique question that they code the answer for. 
-
-
 ----------------------
 ```{r}
 ############### CLEANING #############################
@@ -53,6 +51,7 @@ library(dplyr)
 library(tidytext)
 library(stringr)
 library(rebus)
+
 ##read in main data set
 ted_main <- read_csv("~/text-mining-in-class-team6/TedTalks/ted_main.csv")
 
@@ -62,44 +61,147 @@ transcripts <- read_csv("~/text-mining-in-class-team6/TedTalks/transcripts.csv")
 ###combine data sets
 full_data <- inner_join(ted_main, transcripts, by = "url")
 
+###remove any text in the transcript that is surrounded by parenthesis
+
+for (i in 1:nrow(full_data)){
+  full_data[i, "transcript"] = 
+    str_replace_all(
+      full_data[i, "transcript"],
+      pattern = "\\([^()]+\\)", 
+      " "
+    )
+}
+
+### Convert Unix time to a date:
+
+  #mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
+
 ######### get main rating for each talk #######
-  
+
 for(i in 1:nrow(full_data)) {
   rating_string <- str_sub(full_data$ratings[i], 2,-2)
   rating_vector <- unlist(strsplit(rating_string, split="}"))
-  names <- str_extract_all(rating_vector, pattern = "'name': '" %R% one_or_more(WRD) %R% optional('-') %R% one_or_more(WRD), simplify = T)
+  names <- str_extract_all(rating_vector, pattern = "'name': '" %R% one_or_more(WRD) %R% optional('-') %R% 
+                             one_or_more(WRD), simplify = T)
   names <- str_replace(names, pattern = "'name': '", "")
   counts <- str_extract_all(rating_vector, pattern = "'count': " %R% one_or_more(DGT), simplify = T)
   counts <- str_replace(counts, pattern = "'count': ", "")
   full_data$max_rating[i] <- names[which.max(counts)]
 }
 
+
 transcripts_clean <- full_data %>% unnest_tokens(word, transcript)
 
-sentiments <- transcripts_clean %>% inner_join(get_sentiments("nrc")) %>% filter(!sentiment %in% c("positive", "negative"))
+sentiments_bing <- transcripts_clean %>% inner_join(get_sentiments("bing")) 
+                
+sentiments_nrc <- transcripts_clean %>% inner_join(get_sentiments("nrc")) %>% filter(!word %in% c("like"))
+```
 
-
+```{r}
 ############### ANALYZING #############################
 
-word_counts <- sentiments %>% 
-  count(max_rating, word)
-
+word_counts <- sentiments_bing %>%
+  count(max_rating, word) %>%
+  group_by(max_rating) %>%
+  mutate(rating_counts = sum(n)) %>%
+  ungroup() %>%
+  mutate(prop = n / rating_counts)
 
 top <- word_counts %>%
   group_by(max_rating) %>%
-  top_n(12) %>%
+  top_n(n = 10, wt = prop) %>%
   ungroup() %>%
-  mutate(word = reorder(word, n))
+  arrange(desc(prop)) 
 
-
-# Use aes() to put words on the x-axis and n on the y-axis
-ggplot(top, aes(word, n, fill = max_rating)) +
-  # Make a bar chart with geom_col()
+ggplot(top, aes(reorder(word, prop), prop, fill = max_rating)) +
   geom_col(show.legend = FALSE) +
-  facet_wrap(~max_rating, scales = "free") + 
+  facet_wrap(~max_rating, scales = "free", labeller = ) +
+  coord_flip()
+```
+
+
+
+```{r}
+#######what are the most common sentiments within ted talks grouped by their most popular rating#########
+
+sentiment_plot <- sentiments_nrc %>%
+  filter(!sentiment %in% c("positive", "negative")) %>%
+  count(max_rating, sentiment) %>%
+  group_by(max_rating) %>%
+  mutate(sentiment_count = sum(n)) %>%
+  ungroup() %>%
+  mutate(prop = n/ sentiment_count)
+
+ggplot(sentiment_plot, aes(sentiment, prop, fill = max_rating)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~max_rating, scales = "free", labeller = ) +
   coord_flip()
 
 
 ```
 
+```{r}
+#######what's the average sentiment//how positive/negative is each talk grouped by popular rating#########
+pos_neg <- sentiments_bing %>%
+  count(max_rating, sentiment) %>%
+  group_by(max_rating) %>% 
+  mutate(sentiment_count = sum(n)) %>%
+  ungroup() %>%
+  mutate(prop = n / sentiment_count)
+  
+ggplot(pos_neg, aes(sentiment, prop, fill = max_rating)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~max_rating, scales = "free", labeller = ) +
+  coord_flip()
+
+```
+
+
+```{r}
+#########plots faceted by max_rating, proportion of top 10 words used in ted talks with a given rating#####
+plots <- list()
+for(i in 1:length(unique(top$max_rating))) {
+  plots[[i]] <- top %>% filter(max_rating %in% c(unique(top$max_rating)[i])) %>% ggplot(aes(reorder(word, prop), prop, fill = max_rating)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~max_rating, scales = "free", labeller = ) +
+  coord_flip()
+}
+
+
+grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], plots[[5]], plots[[6]], plots[[7]], 
+             plots[[8]], plots[[9]], plots[[10]], plots[[11]], plots[[12]], plots[[13]], plots[[14]], 
+             ncol = 3)
+```
+
+
+```{r}
+words_used <- transcripts_clean %>%
+  count(max_rating, word) %>%
+  group_by(max_rating) %>% 
+  mutate(word_count = sum(n)) %>%
+  top_n(n = 10, wt = word_count) %>%
+  ungroup() %>%
+  mutate(prop = n / word_count)
+
+
+ggplot(words_used, aes(word, prop, fill = max_rating)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~max_rating, scales = "free") +
+  coord_flip()
+```
+
+```{r}
+#### what are the most used words among all ted talks###
+word_freq 
+```
+
+```{r}
+### what is the distribution of ratings given to ted talks ###
+rating_dist <- transcripts_clean %>% 
+  select(name, max_rating) %>%
+```
+
+```{r}
+### compare word use or pos/neg sentiment across TED events ###
+```
 
