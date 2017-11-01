@@ -252,6 +252,7 @@ sentiments_bing %>%
 
 
 ```{r}
+
 sentiments_nrc %>%
   filter(!word %in% c("like", "right")) %>%
     filter(max_rating %in% c("OK")) %>%
