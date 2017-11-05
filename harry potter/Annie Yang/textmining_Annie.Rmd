@@ -170,3 +170,57 @@ ratio_chapter_np
 
 # The line graphs of each book show that at the end of the story, the ratio of negative and postive words declines to a lower level, which means the story has a relatively "happy ending". Also according to the fluctuation of each book, we know the ups and downs of the sentiment. For example, in the half blood prince, there is a peak of negative sentiment in chapter 29.
 ```
+
+** 4. Examine how sentiment changes throughout each novel/chapter using section **
+
+```{r}
+# Create a tidy text format that record the line number of each word.
+
+series
+
+```
+
+```{r}
+# Use Bing lexicon to analyze
+
+series_bing
+
+## Usually, there are more negative words in each section.
+
+
+# Use AFINN lexicon to analyze
+
+series_afinn
+
+## The results seem to be more reasonable by using AFINN lexicon.
+
+# Take philosophers stone as an example to examine how sentiment changes throughout the chapter - bing
+
+sentence_sent
+
+stone_graph
+```
+
+** 5. Using wordcloud to find the most common words in Harry Potter **
+
+```{r}
+sevenbook%>%
+  count(word)%>%
+  with(wordcloud(word,n,max.words=100))
+
+# Throughout the seven books, according to the wordcloud, we also get the main characters are "Harry", "Ron", "Hermione", "Dumbledore" and "Hagrid"...
+```
+
+** Find the most common positive and negative words **
+
+```{r}
+sevenbook%>%
+  inner_join(get_sentiments("bing"))%>%
+  count(word,sentiment,sort=T)%>%
+  acast(word~sentiment,value.var="n",fill=0)%>%
+  comparison.cloud(colors=c("#F8766D", "#00BFC4"),
+                   max.words=50)  
+
+# From the word cloud, we find that the most common positive words throughout the series are "magic", "top", "happy", "gold", "love", "nice"... And the most common negative words are "dark", "fell", "hard", "death"...
+```
+
