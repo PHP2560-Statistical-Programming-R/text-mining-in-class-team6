@@ -117,7 +117,7 @@ other_prop
 # The line plot shows that the proportion of Hagrid goes down with the series. Overall, the proportion of Dumbledore goes up from 1 to 6 and it drops in series 7. 
 ```
 
-** 3. Sentiment analysis **
+## 3. Sentiment analysis
 
 ** 3.1 What are common joy words and sad words in the seven novels? **
 
@@ -171,7 +171,7 @@ ratio_chapter_np
 # The line graphs of each book show that at the end of the story, the ratio of negative and postive words declines to a lower level, which means the story has a relatively "happy ending". Also according to the fluctuation of each book, we know the ups and downs of the sentiment. For example, in the half blood prince, there is a peak of negative sentiment in chapter 29.
 ```
 
-** 4. Examine how sentiment changes throughout each novel/chapter using section **
+## 4. Examine how sentiment changes throughout each novel/chapter using section
 
 ```{r}
 # Create a tidy text format that record the line number of each word.
@@ -201,7 +201,7 @@ sentence_sent
 stone_graph
 ```
 
-** 5. Using wordcloud to find the most common words in Harry Potter **
+## 5. Using wordcloud to find the most common words in Harry Potter
 
 ```{r}
 sevenbook%>%
@@ -224,3 +224,64 @@ sevenbook%>%
 # From the word cloud, we find that the most common positive words throughout the series are "magic", "top", "happy", "gold", "love", "nice"... And the most common negative words are "dark", "fell", "hard", "death"...
 ```
 
+## 6. What is the relationship of words in Harry Potter? Create bigram and analyze the relationship between words.
+
+```{r}
+# Examine the most common bigrams
+
+bigram_n
+
+# The most common bigrams are some we are not interested in.
+```
+
+
+```{r}
+# Remove cases either is a stop-word
+
+# new bigram counts:
+
+bigram_counts
+
+# We can see that names are the most common pairs in Harrypotter series. 
+# Harry and ron usually appear together. 
+# Also, Ron and Hermione usually appear together.
+```
+
+
+```{r}
+# Unite and analyze
+
+bigrams_united
+
+# And Professor Mcgonagall is a common character in Harry Potter. From the plot, we find that in the book order of the phoenix, the frequency goes up.
+
+united_graph
+
+# We find that in goblet_of_fire, Harry and Ron usually appear together. 
+
+bigram_harry
+
+```
+
+```{r}
+# Analyze sentiment associated with Harry
+
+harry_sentiment
+
+harry_graph
+
+
+```
+
+
+** network of bigrams **
+
+
+```{r}
+bigram_graph
+```
+
+
+```{r}
+network
+```
