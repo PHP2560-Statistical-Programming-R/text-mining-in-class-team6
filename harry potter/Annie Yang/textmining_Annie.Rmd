@@ -117,3 +117,56 @@ other_prop
 # The line plot shows that the proportion of Hagrid goes down with the series. Overall, the proportion of Dumbledore goes up from 1 to 6 and it drops in series 7. 
 ```
 
+** 3. Sentiment analysis **
+
+** 3.1 What are common joy words and sad words in the seven novels? **
+
+```{r}
+# Extract joy words from sentiment dataset NRC.
+
+nrcjoy
+
+# Use inner_join to perform the sentiment analysis.
+
+joy
+
+# We can see in each novel, the common joy words is "found". Also, "ministry", "magical", "hope", "smile"... are frequently used joy words in seven books.
+
+joy_graph
+
+```
+
+
+```{r}
+# Extract sad words from sentiment dataset NRC.
+
+nrcsad
+
+# Use inner_join to perform the sentiment analysis.
+sad
+
+# We can see in each novel, the common sad words is "black", "dark". Also, "kill", "bad", "leave", "death"... are frequently used sad words in seven books. If we use NRC to do the sentiment analysis, we will find something wierd since "mother" is in both joy and sad words list.
+
+sad_graph
+
+# Check the word "mother" in NRC lexicon. We can see that "mother" can be different sentiment. So when analysis sentiment here, we should not take "mother" into account.
+
+get_sentiments("nrc")%>%filter(word=="mother")
+
+```
+
+** 3.2 How does the sentiment change along with the series / chapters? Does it become more positive or negative? **
+
+```{r}
+# 3.2.1 Compare the ratio of negative and positive words used in the seven books. Bigger ratio indicate more negative sentiment.
+
+ratio_np
+
+# The line graph shows that the ratio of negative and positive words fluctuates, a high ratio usually followed by a relatively low ratio in the next book, except that the ratio of prisoner_of_azkaban is higher than chamber of secrets.
+
+# 3.2.2 How does the ratio change through chapters in each book?
+
+ratio_chapter_np
+
+# The line graphs of each book show that at the end of the story, the ratio of negative and postive words declines to a lower level, which means the story has a relatively "happy ending". Also according to the fluctuation of each book, we know the ups and downs of the sentiment. For example, in the half blood prince, there is a peak of negative sentiment in chapter 29.
+```
