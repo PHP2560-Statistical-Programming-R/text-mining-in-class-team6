@@ -4,6 +4,9 @@ ted_main <- read_csv("TedTalks/data/ted_main.csv")
 ##read in transcripts
 transcripts <- read_csv("TedTalks/data/transcripts.csv")
 
+### Fix url formatting so the two data sets match:
+transcripts$url = str_replace_all(transcripts$url, pattern = "\r", replacement = "")
+
 ###combine data sets
 full_data <- inner_join(ted_main, transcripts, by = "url")
 
