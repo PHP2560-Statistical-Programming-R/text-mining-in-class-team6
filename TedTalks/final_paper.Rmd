@@ -1,0 +1,11 @@
+---
+title: "Sentiment Analysis of Ted Talks"
+author: "Blain Morin + Jess Kaminsky"
+date: "November 8, 2017"
+output: html_document
+---
+
+```{r}
+
+```
+
