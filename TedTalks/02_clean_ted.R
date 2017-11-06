@@ -18,4 +18,25 @@ for (i in 1:nrow(full_data)){
     )
 }
 
+for(i in 1:nrow(full_data)) {
+  rating_string <- str_sub(full_data$ratings[i], 2,-2)
+  rating_vector <- unlist(strsplit(rating_string, split="}"))
+  names <- str_extract_all(rating_vector, pattern = "'name': '" %R% one_or_more(WRD) %R% optional('-') %R% 
+                             one_or_more(WRD), simplify = T)
+  names <- str_replace(names, pattern = "'name': '", "")
+  counts <- str_extract_all(rating_vector, pattern = "'count': " %R% one_or_more(DGT), simplify = T)
+  counts <- str_replace(counts, pattern = "'count': ", "")
+  full_data$max_rating[i] <- names[which.max(counts)]
+}
+
 save(full_data, file = "TedTalks/data/full_data.Rda")
+
+transcripts_clean <- full_data %>% unnest_tokens(word, transcript)
+save(transcripts_clean, file = "TedTalks/data/transcripts_clean.Rda")
+
+sentiments_bing <- transcripts_clean %>% inner_join(get_sentiments("bing")) 
+save(sentiments_bing, file = "TedTalks/data/sentiments_bing.Rda")
+
+sentiments_nrc <- transcripts_clean %>% inner_join(get_sentiments("nrc")) %>% filter(!word %in% c("like"))
+save(sentiments_nrc, file = "TedTalks/data/sentiments_nrc.Rda")
+

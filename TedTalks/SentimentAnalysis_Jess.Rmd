@@ -31,7 +31,7 @@ for (i in 1:nrow(full_data)){
 
 ### Convert Unix time to a date:
 
-  #mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
+mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
 
 ######### get main rating for each talk #######
 
