@@ -21,3 +21,9 @@ source("02_get_list.R")     # create useable data list
 source("03_clean_dunkin.R")     ## clean data
 source("04_graph.R")  ## create graph
 rmarkdown::render("paper.Rmd", output_format = "html_document")
+
+
+
+
+
+dir.create("TedTalks/graph/", showWarnings = FALSE)
