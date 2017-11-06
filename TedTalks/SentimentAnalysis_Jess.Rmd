@@ -1,6 +1,6 @@
 ```{r}
 ############### CLEANING #############################
-#data from https://www.kaggle.com/rounakbanik/ted-talks#
+#data from https://www.kaggle.com/rounakbanik/ted-talks #
 
 library(readr)
 library(dplyr)
@@ -31,7 +31,7 @@ for (i in 1:nrow(full_data)){
 
 ### Convert Unix time to a date:
 
-  #mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
+mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
 
 ######### get main rating for each talk #######
 
@@ -204,7 +204,7 @@ sentiments_bing %>%
     filter(max_rating %in% c("Obnoxious")) %>%
     count(word, sentiment) %>%
     group_by(sentiment) %>%
-    top_n(20) %>%
+    top_n(n=20) %>%
     ungroup() %>%
     mutate(word = reorder(word, n)) %>%
     ggplot(aes(x = word, y= n, fill = sentiment)) +
@@ -216,6 +216,8 @@ sentiments_bing %>%
 
 ```
 ```{r}
+
+
 sentiments_nrc %>%
   filter(!word %in% c("like", "right")) %>%
     filter(max_rating %in% c("Obnoxious")) %>%

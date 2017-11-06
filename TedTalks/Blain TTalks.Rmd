@@ -17,10 +17,10 @@ library(rebus)
 
 ```{r}
 ### Read in metadata:
-ted_main <- read_csv("~/skewl/text_analysis/text-mining-in-class-team6/TedTalks/ted_main.csv")
+ted_main <- read_csv("data/ted_main.csv")
 
 ### Read in lecture transcripts:
-transcripts <- read_csv("~/skewl/text_analysis/text-mining-in-class-team6/TedTalks/transcripts.csv")
+transcripts <- read_csv("data/transcripts.csv")
 
 ### Fix url formatting so the two data sets match:
 transcripts$url = str_replace_all(transcripts$url, pattern = "\r", replacement = "")
@@ -203,7 +203,7 @@ transcripts_bing = transcripts_bing %>%
 ```
 
 ```{r}
-###Group by hear and count the total sentiment words
+###Group by year and count the total sentiment words
 bing_by_year <- transcripts_bing %>%
     group_by(year) %>%
     mutate(total_words = n()) %>%
@@ -217,7 +217,37 @@ bing_by_year %>%
     geom_line(size = 1.5) +
     geom_smooth(method = "lm", se = FALSE, lty = 3) +
     expand_limits(y = 0) +
-    xlab("Proportion of Sentiment Words") +
-    ylab("Year")
+    xlab("Year") +
+    ylab("Proportion of Sentiment Word")
 
+```
+
+```{r}
+### Want to add top tag per year
+### First extract tags
+### Then find top tag per year 
+
+tagsdata = bing_by_year %>%
+  distinct(title, tags, year)%>%
+  unnest_tokens(output = tag, input = tags) %>%
+  group_by(year, tag) %>%
+  count() %>%
+  ungroup() %>%
+  group_by(year) %>%
+  slice(which.max(n)) %>%
+  select(year, tag)
+
+bing_by_year = bing_by_year %>% inner_join(tagsdata) %>% rename(yeartoptag = tag)
+
+
+bing_by_year %>%
+    count(year, sentiment, total_words, yeartoptag) %>%
+    mutate(p = n / total_words) %>%
+    ggplot(aes(x = year, y = p, color = sentiment)) +
+    geom_line(size = 1.5) +
+    geom_smooth(method = "lm", se = FALSE, lty = 3) +
+    expand_limits(y = 0) +
+    xlab("Year") +
+    ylab("Proportion of Sentiment Words") +
+    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4")
 ```
