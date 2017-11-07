@@ -1,11 +1,299 @@
 ---
-title: "Sentiment Analysis of Ted Talks"
+title: "jess_paper"
 author: "Blain Morin + Jess Kaminsky"
-date: "November 8, 2017"
+date: "November 6, 2017"
 output: html_document
 ---
+# A Sentiment Analysis of Ted Talks
 
-```{r}
+###THE DATA:
+
+The data used in this analysis was found on Kaggle (https://www.kaggle.com/rounakbanik/ted-talks) and presented in two CSV files. The data was originally scraped from the official TED Website. 
+
+The context for the data, as provided on Kaggle is as follows:
+
+"These datasets contain information about all audio-video recordings of TED Talks uploaded to the official TED.com website until September 21st, 2017. The TED main dataset contains information about all talks including number of views, number of comments, descriptions, speakers and titles. The TED transcripts dataset contains the transcripts for all talks available on TED.com."
+
+In the following analysis, we are examining word choice and overall sentiment among Ted Talks with respect to other variables provided in the data.
+
+## Jess' Analysis
+One of the variables provided in the data set is 'ratings' which provides a list of various ratings given to the talks provided by the viewers. For each talk, each rating has a number associated with it which represents the number of votes each rating received. I have chosen to define the max rating of each talk as the rating that received the most votes. Before looking at sentiment and word choice in the talks, I will to look at the distribution of max ratings among all ted talks.
+
+```{r setup, include=FALSE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r global_options , include=FALSE, warnings =FALSE, message=FALSE}
+```
+
+```{r, echo = FALSE, fig.width= 11}
+rating_dist <- transcripts_clean %>%
+  distinct(name, max_rating) %>%
+  group_by(max_rating) %>%
+  count()
+
+ggplot(rating_dist, aes(reorder(max_rating, n), n, fill = max_rating)) +
+  geom_col(show.legend = FALSE) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  xlab("Max Rating") + 
+  ylab("Count") +
+  ggtitle("Distribution of Max Ratings given to all Ted Talks")
 
 ```
 
+Before performing any sentiment analysis or looking at word choice, I want to look at the overall distribution of words used across all Ted Talks. In the plot below, we see that the word 'like' has approximately double the frequency of the next most common word. We know that this is a filler word that does not have a true sentiment or postive/negative connotation in colloquial English, therefore, we will exclude 'like' from further plots and analyses. We will also remove the word "right" as it is the 3rd most common word used in Ted Talks and it's sentiment is not obvious out of context - it could be a positive word meaning correct but it could also mean the direction which doesn't hold a true sentiment.
+
+```{r, echo = FALSE, fig.width=11}
+word_freq <- sentiments_bing %>%
+  group_by(word) %>%
+  count() %>%
+  ungroup() %>%
+  top_n(50, wt = n)
+
+ggplot(word_freq, aes(reorder(word,n), n, fill = 10)) + 
+  geom_col(show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ggtitle("Distribution of Top 50 Words used across all Ted Talks") + 
+  xlab("Word") + 
+  ylab("Frequency")
+```
+
+The distribution of the top 50 words used in ted talks after removing "like" + "right"
+
+```{r, echo = FALSE, fig.width=11}
+word_freq <- word_freq %>% filter(!word %in% c("like", "right"))
+
+ggplot(word_freq, aes(reorder(word,n), n, fill = 10)) + 
+  geom_col(show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ggtitle("Distribution of Top 50 Words used across all Ted Talks") + 
+  xlab("Word") + 
+  ylab("Frequency")
+```
+
+Next, I will use the nrc lexicon to look at the distribution of sentiments, as determined by word choice, among ted talks when grouped by their max rating. The frequency is presented as a proportion here because, as seen above, the number of talks within each max rating group is not uniform.
+
+When looking at the plots below, there does not appear to be any large differences in the distribution among ted talks based on their max rating.
+
+```{r, echo = FALSE, fig.width=11,fig.height=10}
+sentiment_plot <- sentiments_nrc %>%
+  filter(!word %in% c("like", "right")) %>%
+  filter(!sentiment %in% c("positive", "negative")) %>%
+  count(max_rating, sentiment) %>%
+  group_by(max_rating) %>%
+  mutate(sentiment_count = sum(n)) %>%
+  ungroup() %>%
+  mutate(prop = n/ sentiment_count)
+
+ggplot(sentiment_plot, aes(sentiment, prop, fill = max_rating)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~max_rating, scales = "free", labeller = ) +
+  coord_flip() + 
+  ylab("Frequency") + 
+  xlab("Sentiment") +
+  ggtitle("Distribution of Sentiments of Words used in Ted Talks by Rating")
+
+
+```
+
+
+To look more at what may have contributed to the max rating a Ted Talk received from its' viewers, I will look at the top ten words used in Ted Talks as grouped by max rating. Again the frequencies are presented as proportions to account for differences in sample size among groups.
+
+In the plots below, we see a lot of the most common words - from the word distribution plots above - represented in many or all of the max rating categories. 11 out of the 14 groups have the word "well" as their most frequenty used word. The words "work", "great", "good", "thank", and "problem" are other common words among all groups.
+
+Some interesting findings shown by these plots are as follows. "Fear" and "death" are among the top 10 words used in talks with a max rating of courageous. "Cancer" is one of the top ten words used in talks with a max rating of informative. Talks with an obnoxious max rating had the most interesting set of top ten words used - "risk", "complex", "virus", "unexpected", "injury", "died". OK talks also had a unique list of top ten words, including "award", "winner", and "cave".
+
+```{r, echo = FALSE, fig.width = 11,fig.height=11}
+word_counts <- sentiments_bing %>%
+  count(max_rating, word) %>%
+  group_by(max_rating) %>%
+  mutate(rating_counts = sum(n)) %>%
+  ungroup() %>%
+  mutate(prop = n / rating_counts) 
+
+top <- word_counts %>%
+  arrange(desc(prop)) %>%
+  group_by(max_rating) %>%
+  slice(1:10) %>%
+  ungroup() 
+
+ggplot(top, aes(reorder(word, prop), prop, fill = max_rating)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~max_rating, scales = "free") +
+  coord_flip() + 
+  ylab("Frequency") +
+  xlab("Top Ten Words") + 
+  ggtitle("Top Ten Words used in Ted Talks by rating")
+
+```
+
+Instead of looking at the distribution of sentiments provided by the nrc lexicon, I will now use the bing lexicon to look at the distribution of positive versus negative Ted Talks are based on their max rating.
+
+Most of the talks appear to have a higher frequency of words that contribute to positive sentiment. The talks with max ratings "Courageous", "Obnoxious", and "OK" have more negative words than postive words. We will explore these talks further to see which words contribute to their sentiments in both the bing and nrc lexicons.
+```{r, echo = FALSE, fig.width=11}
+pos_neg <- sentiments_bing %>%
+  count(max_rating, sentiment) %>%
+  group_by(max_rating) %>% 
+  mutate(sentiment_count = sum(n)) %>%
+  ungroup() %>%
+  mutate(prop = n / sentiment_count)
+  
+ggplot(pos_neg, aes(sentiment, prop, fill = max_rating)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~max_rating, scales = "free", labeller = ) +
+  coord_flip() + 
+  ggtitle("Frequency of Postive + Negative words used in Ted Talks by rating") + 
+  xlab("") + 
+  ylab("Frequency")
+
+#we will look further at Courageous, Obnoxious, and OK talks
+```
+
+
+For Ted Talks with a max rating of "Courageous", "Obnoxious", or "OK" I will present plots of the top 20 positive and negative words used in those talks.
+
+When the max rating is "Courageous" we see the top 20 negative words used are words that are associated with topics that are difficult to talk about - death, corruption, killed, lost, die, died, dead, pain, suicide, depression.
+
+```{r, echo = FALSE, fig.width = 11}
+sentiments_bing %>%
+    filter(max_rating %in% c("Courageous")) %>%
+    count(word, sentiment) %>%
+    group_by(sentiment) %>%
+    arrange(desc(n)) %>%
+    slice(1:20) %>%
+    ungroup() %>%
+    mutate(word = reorder(word, n)) %>%
+    ggplot(aes(x = word, y= n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    ylab("count") +
+    facet_wrap(~ sentiment, scales = "free") +
+    coord_flip() +
+    ggtitle("Top 20 Words That Contributed to Postive + Negative Sentiment when Rating is Courageous")
+```
+
+
+When the max rating is "Obnoxious" - the words or topics that may contribute to the higher negative sentiment are not obvious. We see an interesting group of words in the top 20 most used negative words - virus, neurotic, weird, untouched, epidemic, blunt.
+
+```{r, echo = FALSE, fig.width = 11}
+sentiments_bing %>%
+    filter(max_rating %in% c("Obnoxious")) %>%
+    count(word, sentiment) %>%
+    group_by(sentiment) %>%
+    arrange(desc(n)) %>%
+    slice(1:20) %>%
+    ungroup() %>%
+    mutate(word = reorder(word, n)) %>%
+    ggplot(aes(x = word, y= n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    ylab("count") +
+    facet_wrap(~ sentiment, scales = "free") +
+    coord_flip() +
+    ggtitle("Top 20 Words That Contributed to Postive + Negative Sentiment when Rating is Obnoxious")
+```
+
+When the max rating is "OK" we see an even less cohesive group of words that contribute to the negative sentiment. The top 20 negative words include - silly, limited, funky, dizzy, died, destruction, cheap, blind, and betray. These words do have a negative connotation but they are not obviously associated with things that are difficult to talk about as seen in the "Courageous" group. This mismatched group of negative words makes sense for a talk that was rated "OK". Nothing too negative or positive.
+
+```{r, echo = FALSE, fig.width = 11}
+sentiments_bing %>%
+    filter(max_rating %in% c("OK")) %>%
+    count(word, sentiment) %>%
+    group_by(sentiment) %>%
+    arrange(desc(n)) %>%
+    slice(1:20) %>%
+    ungroup() %>%
+    mutate(word = reorder(word, n)) %>%
+    ggplot(aes(x = word, y= n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    ylab("count") +
+    facet_wrap(~ sentiment, scales = "free") +
+    coord_flip() +
+    ggtitle("Top 20 Words That Contributed to Positive + Negative Sentiment when Rating is OK")
+```
+## Blain's Analysis
+### Question 1: Which talks had the highest proportion of positive words?
+
+
+```{r, echo=FALSE}
+transcripts_bing = sentiments_bing
+transcripts_nrc = sentiments_nrc
+
+transcripts_clean = transcripts_clean %>%
+  group_by(name) %>%
+  mutate(wordcount = n()) %>%
+  ungroup()
+
+transcripts_bing %>%
+  filter(sentiment == "positive") %>%
+  filter(wordcount > 510) %>%
+  count(name, sentiment, wordcount) %>%
+  mutate(positive_p = n / wordcount) %>%
+  arrange(desc(positive_p)) %>%
+  top_n(20)
+
+
+```
+Talk about finding a cutoff for wordcount.
+
+### Which words contributed the most to sentiment scores?
+
+```{r, echo = FALSE}
+###Count by word and sentiment
+###Then, group by sentiment
+###Then, plot the top 20 words for each sentiment
+
+transcripts_bing %>%
+    count(word, sentiment) %>%
+    group_by(sentiment) %>%
+    top_n(20) %>%
+    ungroup() %>%
+    mutate(word = reorder(word, n)) %>%
+    ggplot(aes(x = word, y= n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    ylab("count") +
+    facet_wrap(~ sentiment, scales = "free") +
+    coord_flip() +
+    ggtitle("Top 20 Words That Contributed to Sentiment")
+
+```
+
+###Did sentiment change over time?
+
+```{r, echo=FALSE}
+### Convert Unix time to a date:
+
+transcripts_bing = transcripts_bing %>%
+  mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
+
+###Group by year and count the total sentiment words
+bing_by_year = transcripts_bing %>%
+  group_by(year) %>%
+  mutate(total_words = n()) %>%
+  ungroup() 
+
+### Want to add top tag per year
+### First extract tags
+### Then find top tag per year 
+
+tagsdata = bing_by_year %>%
+  distinct(title, tags, year)%>%
+  unnest_tokens(output = tag, input = tags) %>%
+  group_by(year, tag) %>%
+  count() %>%
+  ungroup() %>%
+  group_by(year) %>%
+  slice(which.max(n)) %>%
+  select(year, tag)
+
+bing_by_year = bing_by_year %>% inner_join(tagsdata) %>% rename(yeartoptag = tag)
+
+bing_by_year %>%
+    count(year, sentiment, total_words, yeartoptag) %>%
+    mutate(p = n / total_words) %>%
+    ggplot(aes(x = year, y = p, color = sentiment)) +
+    geom_line(size = 1.5) +
+    geom_smooth(method = "lm", se = FALSE, lty = 3) +
+    xlab("Year") +
+    ylab("Proportion of Sentiment Words") +
+    ggtitle("Sentiment Through Time With Top Tag")+
+    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4")
+```
