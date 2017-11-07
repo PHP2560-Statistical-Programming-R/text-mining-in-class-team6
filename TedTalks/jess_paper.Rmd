@@ -7,7 +7,7 @@ output: html_document
 # A Sentiment Analysis of Ted Talks
 ## Blain Morin + Jess Kaminsky
 
-### *THE DATA:*
+*THE DATA:*
 
 The data used in this analysis was found on Kaggle (https://www.kaggle.com/rounakbanik/ted-talks) and presented in two CSV files. The data was originally scraped from the official TED Website. 
 
@@ -99,6 +99,8 @@ ggplot(sentiment_plot, aes(sentiment, prop, fill = max_rating)) +
 
 
 ```
+
+
 To look more at what may have contributed to the max rating a Ted Talk received from its' viewers, I will look at the top ten words used in Ted Talks as grouped by max rating. Again the frequencies are presented as proportions to account for differences in sample size among groups.
 
 In the plots below, we see a lot of the most common words - from the word distribution plots above - represented in many or all of the max rating categories. 11 out of the 14 groups have the word "well" as their most frequenty used word. The words "work", "great", "good", "thank", and "problem" are other common words among all groups.
