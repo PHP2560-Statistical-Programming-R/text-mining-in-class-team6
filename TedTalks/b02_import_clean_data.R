@@ -39,7 +39,7 @@ transcripts_nrc = transcripts_clean %>% inner_join(get_sentiments("nrc")) %>% fi
 
 
 ###Save as Rda files for faster loading
-save(full_data, file = "TedTalks/data/bfull_data.Rda")
-save(transcripts_clean, file = "TedTalks/data/btranscripts_clean.Rda")
-save(transcripts_bing, file = "TedTalks/data/btranscripts_bing.Rda")
-save(transcripts_nrc, file = "TedTalks/data/btranscripts_nrc.Rda")
+save(full_data, file = "data/bfull_data.Rda")
+save(transcripts_clean, file = "data/btranscripts_clean.Rda")
+save(transcripts_bing, file = "data/btranscripts_bing.Rda")
+save(transcripts_nrc, file = "data/btranscripts_nrc.Rda")
