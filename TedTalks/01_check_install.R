@@ -3,5 +3,6 @@
 ## This function takes the packages that our program needs. 
 ## It makes sure you have them on your computer before proceeding.
 
-source("check_packages.R")
-check_packages(c("stringr","tidyverse", "tidytext", "lubridate", "rebus", "ggrepel", "ggplot2", "readr"))
+source("TedTalks/check_packages.R")
+check_packages(c("dplyr", "stringr","tidyverse", "tidytext", "lubridate", "rebus", "ggrepel", "ggplot2", "readr"))
+

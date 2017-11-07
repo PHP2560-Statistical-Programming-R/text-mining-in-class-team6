@@ -7,7 +7,7 @@ output: html_document
 # A Sentiment Analysis of Ted Talks
 ## Blain Morin + Jess Kaminsky
 
-*THE DATA:*
+###THE DATA:
 
 The data used in this analysis was found on Kaggle (https://www.kaggle.com/rounakbanik/ted-talks) and presented in two CSV files. The data was originally scraped from the official TED Website. 
 
@@ -22,12 +22,6 @@ One of the variables provided in the data set is 'ratings' which provides a list
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-load("data/transcripts_clean.Rda")
-load("data/sentiments_nrc.Rda")
-load("data/sentiments_bing.Rda")
-load("data/full_data.Rda")
-library(dplyr)
-library(ggplot2)
 ```
 
 ```{r, echo = FALSE}
