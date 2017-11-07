@@ -169,16 +169,17 @@ What was the top sentiment?
 transcripts_nrc = transcripts_clean %>%
   inner_join(get_sentiments("nrc")) 
 
+### Count by word and sentiment
+### Group by sentiment
+### Take the top 20 words for each sentiment
+### Set up the plot with aes()
+
 transcripts_nrc %>%
-    # Count by word and sentiment
     count(word, sentiment) %>%
-    # Group by sentiment
     group_by(sentiment) %>%
-    # Take the top 20 words for each sentiment
     top_n(5) %>%
     ungroup() %>%
     mutate(word = reorder(word, n)) %>%
-    # Set up the plot with aes()
     ggplot(aes(x = word, y= n, fill = sentiment)) +
     geom_col(show.legend = FALSE) +
     ylab("count") +

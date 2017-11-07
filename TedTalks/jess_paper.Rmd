@@ -204,3 +204,90 @@ sentiments_bing %>%
     ggtitle("Top 20 Words That Contributed to Positive + Negative Sentiment when Rating is OK")
 ```
 
+### Question 1: Which talks had the highest proportion of positive words?
+
+
+```{r, echo=FALSE}
+transcripts_bing = sentiments_bing
+transcripts_nrc = sentiments_nrc
+
+transcripts_clean = transcripts_clean %>%
+  group_by(name) %>%
+  mutate(wordcount = n()) %>%
+  ungroup()
+
+transcripts_bing %>%
+  filter(sentiment == "positive") %>%
+  filter(wordcount > 510) %>%
+  count(name, sentiment, wordcount) %>%
+  mutate(positive_p = n / wordcount) %>%
+  arrange(desc(positive_p)) %>%
+  top_n(20)
+
+
+```
+Talk about finding a cutoff for wordcount.
+
+### Which words contributed the most to sentiment scores?
+
+```{r, echo = FALSE}
+###Count by word and sentiment
+###Then, group by sentiment
+###Then, plot the top 20 words for each sentiment
+
+transcripts_bing %>%
+    count(word, sentiment) %>%
+    group_by(sentiment) %>%
+    top_n(20) %>%
+    ungroup() %>%
+    mutate(word = reorder(word, n)) %>%
+    ggplot(aes(x = word, y= n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    ylab("count") +
+    facet_wrap(~ sentiment, scales = "free") +
+    coord_flip() +
+    ggtitle("Top 20 Words That Contributed to Sentiment")
+
+```
+
+###Did sentiment change over time?
+
+```{r, echo=FALSE}
+### Convert Unix time to a date:
+
+transcripts_bing = transcripts_bing %>%
+  mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
+
+###Group by year and count the total sentiment words
+bing_by_year = transcripts_bing %>%
+  group_by(year) %>%
+  mutate(total_words = n()) %>%
+  ungroup() 
+
+### Want to add top tag per year
+### First extract tags
+### Then find top tag per year 
+
+tagsdata = bing_by_year %>%
+  distinct(title, tags, year)%>%
+  unnest_tokens(output = tag, input = tags) %>%
+  group_by(year, tag) %>%
+  count() %>%
+  ungroup() %>%
+  group_by(year) %>%
+  slice(which.max(n)) %>%
+  select(year, tag)
+
+bing_by_year = bing_by_year %>% inner_join(tagsdata) %>% rename(yeartoptag = tag)
+
+bing_by_year %>%
+    count(year, sentiment, total_words, yeartoptag) %>%
+    mutate(p = n / total_words) %>%
+    ggplot(aes(x = year, y = p, color = sentiment)) +
+    geom_line(size = 1.5) +
+    geom_smooth(method = "lm", se = FALSE, lty = 3) +
+    xlab("Year") +
+    ylab("Proportion of Sentiment Words") +
+    ggtitle("Sentiment Through Time With Top Tag")+
+    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4")
+```

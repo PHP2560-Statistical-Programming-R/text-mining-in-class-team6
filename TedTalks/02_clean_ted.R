@@ -35,6 +35,12 @@ for(i in 1:nrow(full_data)) {
 save(full_data, file = "TedTalks/data/full_data.Rda")
 
 transcripts_clean <- full_data %>% unnest_tokens(word, transcript)
+
+transcripts_clean <- transcripts_clean %>%
+  group_by(name) %>%
+  mutate(wordcount = n()) %>%
+  ungroup()
+
 save(transcripts_clean, file = "TedTalks/data/transcripts_clean.Rda")
 
 sentiments_bing <- transcripts_clean %>% inner_join(get_sentiments("bing")) %>% filter(!word %in% c("like", "right"))
