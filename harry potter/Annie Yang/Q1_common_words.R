@@ -8,6 +8,8 @@ top_words<-sevenbook%>%
   top_n(10,n)%>%
   arrange(title)
 
+theme_update(plot.title = element_text(hjust = 0.5)) # center title
+
 graph_top<-sevenbook%>%
   group_by(title)%>%
   count(word,sort=T)%>%

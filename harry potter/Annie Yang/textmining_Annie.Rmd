@@ -1,5 +1,5 @@
 ---
-title: "Text Analyis"
+title: "Text Analyis - Harry Potter"
 output: github_document
 ---
 
@@ -231,18 +231,23 @@ sevenbook%>%
 
 bigram_n
 
-# The most common bigrams are some we are not interested in.
+# The most common bigrams are some we are not interested in, such as " of the ", "in the ". And most of them are in stop words.
 ```
 
 
 ```{r}
-# Remove cases either is a stop-word
-
-# new bigram counts:
+# Remove cases where either is a stop-word
+# new bigram counts
 
 bigram_counts
 
-# We can see that names are the most common pairs in Harrypotter series. 
+# We can see that names are the most common pairs in Harry Potter series. 
+
+
+# The table shows the number of occurence of any 2 characters among "Harry", "Ron" and "Hermione"
+
+character_relationship
+
 # Harry and ron usually appear together. 
 # Also, Ron and Hermione usually appear together.
 ```
@@ -264,9 +269,11 @@ bigram_harry
 ```
 
 ```{r}
-# Analyze sentiment associated with Harry
+# Analyze sentiment associated with Harry with "AFINN"
 
-harry_sentiment
+harry_sentiment 
+
+# The figure shows the common positive and negative sentiment words associated with "Harry".
 
 harry_graph
 
@@ -278,10 +285,13 @@ harry_graph
 
 
 ```{r}
+# Filter for only relatively common combination ( the occurrences of the 2 words are more than 60 )
 bigram_graph
 ```
 
 
 ```{r}
+
+# From the figure, we can visualize relational tidy data of the Harry Potter. 
 network
 ```
