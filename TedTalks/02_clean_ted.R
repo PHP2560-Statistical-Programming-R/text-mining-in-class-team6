@@ -37,6 +37,6 @@ save(transcripts_clean, file = "TedTalks/data/transcripts_clean.Rda")
 sentiments_bing <- transcripts_clean %>% inner_join(get_sentiments("bing")) 
 save(sentiments_bing, file = "TedTalks/data/sentiments_bing.Rda")
 
-sentiments_nrc <- transcripts_clean %>% inner_join(get_sentiments("nrc")) %>% filter(!word %in% c("like"))
+sentiments_nrc <- transcripts_clean %>% inner_join(get_sentiments("nrc")) %>% filter(!word %in% c("like", "right"))
 save(sentiments_nrc, file = "TedTalks/data/sentiments_nrc.Rda")
 

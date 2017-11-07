@@ -1,0 +1,56 @@
+---
+title: "jess_paper"
+author: "Jess Kaminsky"
+date: "November 6, 2017"
+output: html_document
+---
+
+THE DATA:
+
+The data used in this analysis was found on Kaggle (https://www.kaggle.com/rounakbanik/ted-talks) and presented in two CSV files. The data was originally scraped from the official TED Website. 
+
+The context for the data, as provided on Kaggle is as follows:
+
+"These datasets contain information about all audio-video recordings of TED Talks uploaded to the official TED.com website until September 21st, 2017. The TED main dataset contains information about all talks including number of views, number of comments, descriptions, speakers and titles. The TED transcripts dataset contains the transcripts for all talks available on TED.com."
+
+In the following analysis, we are examining word choice and overall sentiment among Ted Talks with respect to other variables provided in the data.
+
+
+One of the variables provided in the data set is 'ratings' which provides a list of various ratings given to the talks provided by the viewers. For each talk, each rating has a number associated with it which represents the number of votes each rating received. I have chosen to define the max rating of each talk as the rating that received the most votes. Before looking at sentiment and word choice in the talks, I will to look at the distribution of max ratings among all ted talks.
+
+```{r setup, include=FALSE}
+load("TedTalks/data/full_data.Rda")
+load("TedTalks/data/transcripts_clean.Rda")
+load("TedTalks/data/sentiments_bing.Rda")
+load("TedTalks/data/sentiments_nrc.Rda")
+```
+
+```{r}
+rating_dist <- transcripts_clean %>%
+  distinct(name, max_rating) %>%
+  group_by(max_rating) %>%
+  count()
+
+ggplot(rating_dist, aes(reorder(max_rating, n), n, fill = max_rating)) +
+  geom_col(show.legend = FALSE) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  xlab("Max Rating") + 
+  ylab("Count") +
+  ggtitle("Distribution of Max Ratings given to all Ted Talks")
+
+```
+
+Before performing any sentiment analysis or looking at word choice, I want to look at the overall distribution of words used across all Ted Talks. In the plot below, 
+
+```{r}
+word_freq <- sentiments_bing %>%
+  group_by(word) %>%
+  count() %>%
+  ungroup() %>%
+  top_n(50)
+
+ggplot(word_freq, aes(reorder(word,n), n, fill = 10)) + 
+  geom_col(show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
