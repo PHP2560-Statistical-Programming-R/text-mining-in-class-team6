@@ -200,7 +200,6 @@ sentiments_nrc %>%
 
 ```{r}
 sentiments_bing %>%
-  filter(!word %in% c("like", "right")) %>%
     filter(max_rating %in% c("Obnoxious")) %>%
     count(word, sentiment) %>%
     group_by(sentiment) %>%
