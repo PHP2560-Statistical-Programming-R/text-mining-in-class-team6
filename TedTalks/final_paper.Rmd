@@ -270,7 +270,7 @@ kable(top_table, col.names = c("Name", "Word Count", "n", "p positive"), caption
 
 To obtain this chart we filtered presentations that had fewer than 510 words. This filter was chosen to help remove some artistic performances, which we did not want to include in the analysis. However, we see that "John Legend: Redemption Song" still made it through. 
 
-Many of the talks featured in the above table are what we would expect. Most have a positive sentiment in their title (such as "The Hidden Power"). Some talks were expected to be positive because of the speaker's position (for example, Michelle Obama makes it on the list).
+Many of the talks featured in the above table are what we would expect. Most have a positive sentiment in their title (such as "The Hidden Power of Smiling"). Some talks were expected to be positive because of the speaker's position (for example, Michelle Obama makes it on the list).
 
 
 
@@ -295,6 +295,7 @@ transcripts_bing %>%
     facet_wrap(~ sentiment, scales = "free") +
     coord_flip() +
     ggtitle("Top 20 Words That Contributed to Sentiment") +
+    scale_color_manual(values = c("cadetblue3", "coral2")) +
     theme_minimal()
 
 ```
@@ -350,7 +351,8 @@ bing_by_year %>%
     xlab("Year") +
     ylab("Proportion of Sentiment Words") +
     ggtitle("Sentiment Through Time With Top Tag")+
-    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4", size = 4.5) + 
+    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "black", size = 4.5) + 
+    scale_color_manual(values = c("cadetblue3", "coral2")) +
     theme_classic()
 ```
 
@@ -508,4 +510,4 @@ ggplot(culture_bing_year, aes(x = year, y = positive_p)) +
 ```
 
 
-There does appear to be a difference in trends between culture talks and techonolgy talks: culture talks seems to have decreased in positivity whereas positivity in the technology talks has remained relatively constant. 
+There appears to be a difference in trends between culture talks and techonolgy talks: culture talks seems to have decreased in positivity whereas positivity in the technology talks has remained relatively constant. 
