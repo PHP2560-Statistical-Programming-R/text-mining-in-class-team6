@@ -21,6 +21,8 @@ series_bing<-series%>%
   group_by(title)%>%
   count(index=linenumber%/%100,sentiment)%>% # Using 100 lines as a section
   spread(sentiment,n,fill=0)%>%mutate(sentiment=positive-negative)%>%
+  ungroup()%>%
+  mutate(title= factor(title,levels=harry_title))%>%
   ggplot(aes(index,sentiment,fill=title))+
   geom_col(show.legend = F)+
   ylab("sentiment=positive-negative")+
@@ -37,6 +39,8 @@ series_afinn<-series%>%
   ungroup()%>%
   group_by(title,index)%>%
   summarise(sentiment=sum(score))%>% # Calculate the total score of each section throughout the novel
+  ungroup()%>%
+  mutate(title= factor(title,levels=harry_title))%>%
   ggplot(aes(index,sentiment,fill=title))+
   geom_col(show.legend = F)+
   ylab("sentiment=sum(score)")+
