@@ -1,5 +1,5 @@
 ---
-title: "Text Analyis - Harry Potter"
+title: "Text Analyis by Annie Yang - Harry Potter"
 output: github_document
 ---
 
@@ -48,7 +48,7 @@ We will spend the next 2 weeks working on analyzing textual data in R. You will 
 
 ## Gather data from Github and store the Harry Potter Complete 7 Books text in a datafrome
 ```{r}
-# sevenbook is a tidy text format dataframe including 7 novels
+# sevenbook is a tidy text format dataframe including 7 novels.
 sevenbook
 ```
 
@@ -64,57 +64,57 @@ top_words
 graph_top
 
 # From the bar charts, we find that main characters are Harry, Ron and Hermione.
-# And most common words are usually related to characters.
+# And most common words are usually related to characters, such as "Dumbledore", "Hagrid", "Snape", "Uncle" and "Professor"...
+
 ```
 
 
-** 1.2 What are common words in the series after removing characters' names? **
+** 1.2 What are common words in the novels after removing characters' names? **
 ```{r}
-# After removing the characters's names, plot the top 10 words in each novel
+# After removing some common words related to the characters ("harry","harry's","potter","ron","hermione","dumbledore","snape","hagrid","weasley","voldemort","Malfoy","professor"), plot the top 10 words in each novel
 
 no_char_graph
 
-# The bar charts show that "looked", "eyes", "time"... are in the top words
+# The bar charts show that "looked", "eyes", "time", "voice", "head" (usually the words related to body) ... are in the top words.
 ```
 
-## 2. Character analysis: How does the proportion of the three main characters change along with the series / chapters? How does the proportion of other characters change along with the series?
+## 2. Character analysis: How do the proportions of the three main characters change along with the novels / chapters? How do the proportions of other characters change along with the novels?
 
 ```{r}
 # Calculate the proportion of word in each novel
-
 words_prop
 
 # Calculate the words' proportion by chapters in each novel
 words_prop_chapter
 ```
 
-** 2.1 How does the proportion of the three main characters change along with the series? **
+** 2.1 How do the proportions of the three main characters change along with the novels? **
 
 ```{r}
-# Plot the proportion of the three main characters in each book. 
+# Plot the proportions of the three main characters in each book. 
 
 prop_book_graph
 
 ## The propotion of harry and ron slightly decreases with the series, while the proportion of hermione slightly increases. In the second book (chamber of secrets) there is a relatively big gap between the proportion of Ron and Hermione.
 ```
 
-** 2.2 How does the proportion of three main characters change along with the chapters in each book? **
+** 2.2 How do the proportions of three main characters change along with the chapters in each book? **
 
 ```{r}
 # Draw line plots of each novel to compare the proportion change 
 
 prop_chapter_graph
 
-## For the fans of ron or hermione, they can find in which chapter the character has a relatively high proportion. For example, in the first book (philosophers stone), Ron and Hermione appear from the 6th chapter.
+## For the fans of ron or hermione, they can find in which chapter the character has a relatively high proportion. For example, in the first book (philosophers stone), Ron and Hermione first appear in the 6th chapter.
 ```
 
-** 2.3 How does the proportion of other characters change along with the series? **
+** 2.3 How do the proportions of other characters change along with the novels? **
 
 ```{r}
 
 other_prop
 
-# The line plot shows that the proportion of Hagrid goes down with the series. Overall, the proportion of Dumbledore goes up from 1 to 6 and it drops in series 7. 
+# The line plot shows that the proportion of Hagrid goes down along with the novels. Overall, the proportion of Dumbledore goes up from 1 to 6 and it drops in the 7th novel. 
 ```
 
 ## 3. Sentiment analysis
@@ -130,7 +130,7 @@ nrcjoy
 
 joy
 
-# We can see in each novel, the common joy words is "found". Also, "ministry", "magical", "hope", "smile"... are frequently used joy words in seven books.
+# We can see in each novel, the common joy words is "found". Also, "magical", "hope", "smile"... are frequently used joy words in seven books.
 
 joy_graph
 
@@ -145,7 +145,7 @@ nrcsad
 # Use inner_join to perform the sentiment analysis.
 sad
 
-# We can see in each novel, the common sad words is "black", "dark". Also, "kill", "bad", "leave", "death"... are frequently used sad words in seven books. If we use NRC to do the sentiment analysis, we will find something wierd since "mother" is in both joy and sad words list.
+# We can see in each novel, the common sad words is "black", "dark". Also, "kill", "bad", "leave", "death"... are frequently used sad words in seven books. If we use NRC to do the sentiment analysis, we will find something wierd, since "mother" is in both joy and sad words list.
 
 sad_graph
 
@@ -155,14 +155,14 @@ get_sentiments("nrc")%>%filter(word=="mother")
 
 ```
 
-** 3.2 How does the sentiment change along with the series / chapters? Does it become more positive or negative? **
+** 3.2 How does the sentiment change along with the novels / chapters? Does it become more positive or negative? **
 
 ```{r}
 # 3.2.1 Compare the ratio of negative and positive words used in the seven books. Bigger ratio indicate more negative sentiment.
 
 ratio_np
 
-# The line graph shows that the ratio of negative and positive words fluctuates, a high ratio usually followed by a relatively low ratio in the next book, except that the ratio of prisoner_of_azkaban is higher than chamber of secrets.
+# The line graph shows that the ratio of negative and positive words fluctuates, a high ratio usually followed by a relatively low ratio in the next book, except that the ratio of "prisoner_of_azkaban"" is higher than "chamber of secrets".
 
 # 3.2.2 How does the ratio change through chapters in each book?
 
@@ -181,24 +181,26 @@ series
 ```
 
 ```{r}
-# Use Bing lexicon to analyze
+# Use Bing lexicon to analyze how sentiment changes along with sections. Here sentiment = positive-negative.
 
 series_bing
 
 ## Usually, there are more negative words in each section.
 
 
-# Use AFINN lexicon to analyze
+# Use AFINN lexicon to analyze how sentiment changes along with sections. Here sentiment=sum(score).
 
 series_afinn
 
-## The results seem to be more reasonable by using AFINN lexicon.
+## The results seem to be more reasonable by using AFINN lexicon, because the AFINN lexicon has the score of each word. 
 
 # Take philosophers stone as an example to examine how sentiment changes throughout the chapter - bing
 
 sentence_sent
 
 stone_graph
+
+# We can see in which chapter there are more sections that have more positive sentiment, such as chapter 5, 6, 7.
 ```
 
 ## 5. Using wordcloud to find the most common words in Harry Potter
@@ -208,7 +210,7 @@ sevenbook%>%
   count(word)%>%
   with(wordcloud(word,n,max.words=100))
 
-# Throughout the seven books, according to the wordcloud, we also get the main characters are "Harry", "Ron", "Hermione", "Dumbledore" and "Hagrid"...
+# Throughout the seven books, according to the wordcloud, we also get the main characters are "Harry", "Ron", "Hermione", "Dumbledore" and "Hagrid"... And some common words are "looked", "time", "magic", "eyes"...
 ```
 
 ** Find the most common positive and negative words **
@@ -258,7 +260,7 @@ character_relationship
 
 bigrams_united
 
-# And Professor Mcgonagall is a common character in Harry Potter. From the plot, we find that in the book order of the phoenix, the frequency goes up.
+# And Professor Mcgonagall is a common character in Harry Potter. From the plot, we find that in the book "Order Of the Phoenix" , the frequency goes up.
 
 united_graph
 
@@ -286,12 +288,14 @@ harry_graph
 
 ```{r}
 # Filter for only relatively common combination ( the occurrences of the 2 words are more than 60 )
+
 bigram_graph
 ```
 
 
 ```{r}
 
-# From the figure, we can visualize relational tidy data of the Harry Potter. 
+# From the figure, we can visualize relational tidy data of the Harry Potter. The figure corresponds to the table (bigram_counts) we get. "Professor Mcgonagall", " Uncle Vernon "... are common combinations.
+
 network
 ```
