@@ -257,7 +257,7 @@ Many of the talks featured in the above table are what we would expect. Most hav
 transcripts_bing %>%
     count(word, sentiment) %>%
     group_by(sentiment) %>%
-    top_n(20) %>%
+    top_n(20, wt = n) %>%
     ungroup() %>%
     mutate(word = reorder(word, n)) %>%
     ggplot(aes(x = word, y= n, fill = sentiment)) +
@@ -305,7 +305,7 @@ tagsdata = bing_by_year %>%
   select(year, tag)
 
 ### Join the top tags with the transcipt data
-bing_by_year = bing_by_year %>% inner_join(tagsdata) %>% rename(yeartoptag = tag)
+bing_by_year = bing_by_year %>% inner_join(tagsdata, wt = year) %>% rename(yeartoptag = tag)
 
 
 ### Create plot with time on x axis and proportion on the y axis
