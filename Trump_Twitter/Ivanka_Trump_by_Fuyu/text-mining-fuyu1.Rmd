@@ -154,12 +154,11 @@ tidy_text %>%
   coord_flip()
 ```
 
-```{r}
+```{r,warning=FALSE}
 
 names(data_clean)
 #words frequency by month
 
-dir.create("graph/",showWarnings = FALSE)
 library(wordcloud)
 library(dplyr)
 
