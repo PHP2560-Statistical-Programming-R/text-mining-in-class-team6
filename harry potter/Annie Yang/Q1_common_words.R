@@ -30,7 +30,9 @@ graph_top<-sevenbook%>%
 
 # Custom stop-words
 custom_stop_words<-bind_rows(
-  data_frame(word=c("harry","harry's","ron","hermione","dumbledore","snape","hagrid","weasley","voldemort","professor"),
+  data_frame(word=c("harry","harry's","potter","ron","hermione",
+                    "dumbledore","snape","hagrid","weasley",
+                    "voldemort","malfoy","professor"),
              lexicon=c("custom")),
   stop_words
 )
