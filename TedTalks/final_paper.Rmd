@@ -337,16 +337,20 @@ From the chart above, there does seem to be a trend of decreasing positivity in 
 
 
 
-```{r}
+```{r, echo = FALSE}
 
+### Count the number of positive and negative sentiment words in each talk, grouped by year
 transcripts_bing %>%
   group_by(name, sentiment, year) %>%
   filter(year > 1998) %>%
   count() %>%
+### Tidy the data to that positive and negative counts are columns by using spread function 
   spread(sentiment, n) %>%
+### Find positive and negative proportion for each talk  
   mutate(total = negative + positive) %>%
   mutate(Prop_Positive = positive / total) %>%
   mutate(Prop_Negative = negative / total) %>%
+### Plot the density proportions separated by year using ggridges
   ggplot(aes(x = Prop_Positive, y = as.factor(year))) + 
   geom_density_ridges(aes(x = Prop_Negative, fill = "Negative"), alpha = .7, rel_min_height = .03, scale = .95, na.rm = TRUE)+
   geom_density_ridges(aes(fill = "Positive"), alpha = .7, rel_min_height = .03, scale = .95, na.rm = TRUE) +
