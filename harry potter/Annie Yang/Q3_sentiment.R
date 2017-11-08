@@ -78,6 +78,7 @@ ratio_chapter_np<-sevenbook%>%inner_join(get_sentiments("bing"))%>%
   ungroup()%>%
   arrange(series)%>%
   mutate(ratio=negative/positive)%>%
+  mutate(title= factor(title,levels=harry_title))%>%
   ggplot(aes(chapter,ratio,color=title))+
   geom_line()+
   facet_wrap(~title,scales="free")

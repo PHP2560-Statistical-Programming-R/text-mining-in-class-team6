@@ -8,6 +8,8 @@ top_words<-sevenbook%>%
   top_n(10,n)%>%
   arrange(title)
 
+theme_update(plot.title = element_text(hjust = 0.5)) # center title
+
 graph_top<-sevenbook%>%
   group_by(title)%>%
   count(word,sort=T)%>%
@@ -28,7 +30,9 @@ graph_top<-sevenbook%>%
 
 # Custom stop-words
 custom_stop_words<-bind_rows(
-  data_frame(word=c("harry","harry's","ron","hermione","dumbledore","snape","hagrid","weasley","voldemort","professor"),
+  data_frame(word=c("harry","harry's","potter","ron","hermione",
+                    "dumbledore","snape","hagrid","weasley",
+                    "voldemort","malfoy","professor"),
              lexicon=c("custom")),
   stop_words
 )

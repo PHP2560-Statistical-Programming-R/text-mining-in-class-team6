@@ -1,28 +1,11 @@
+-----Instructions for TedTalks Analysis, Completed by Blain Morin + Jess Kaminsky -------
 
-## Analyzing Text Data in R
+Go into the TedTalks folder + run makefile.R, the knitted output file should generate in the same folder and will be called final_paper.Rmd
 
-We will spend the next 2 weeks working on analyzing textual data in R. You will do the following:
+------------------------------------------------------------------------------------------
 
-- Start with some text based data.
-- Clean data and prepare it for analysis
-- Ask questions about the data
-- Answer these questions with the data using tables and graphics
-- Each group member must have their own unique question that they code the answer for. 
+-----Instructions for HarryPotter Analysis, Completed by Yiquan Xu + Annie Yang -------
 
-[Please click]() in order to get your github repository with the assignment and starter code. 
+Go into the harry potter folder, and go into Annie Yang folder + run makefile.R, the knitted output file should generate in the same folder and will be called textmining_Annie.html
 
-You should commit often. Your way of showing what you have added to this work is by committing. 
-
-
-## Tips
-
-- Clone this github repository
-- Then open the R-Project not just the file
-- When you make changes Follow these steps:
-    - Add files changed
-    - Commit Changes
-    - Pull 
-    - Push
-    
-    
-
+------------------------------------------------------------------------------------------

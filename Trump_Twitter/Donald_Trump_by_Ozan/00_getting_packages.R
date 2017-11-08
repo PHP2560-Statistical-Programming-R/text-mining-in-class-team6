@@ -1,3 +1,4 @@
+# check for requiered packages and get them if needed
 names <- c(
             "dplyr", 
             "stringr", 

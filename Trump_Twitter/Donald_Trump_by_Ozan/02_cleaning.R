@@ -12,15 +12,16 @@ date <- date_and_time$date %>%
           ) %>%
   as_tibble() %>%
   rename(date = V1, year = V2, month = V3, day = V4)
-
+# filter out retweets
 clean_data <- DT_all_tweets %>%
   cbind(date) %>%
   filter(is_retweet == "FALSE") %>%
   select(text, date, year, month, day) 
 
-
+# store the text as character
 clean_data$text <- as.character(clean_data$text)
 
+# extract the words and filter out the unnecessary ones
 tidy_words <- clean_data %>%
   as.tbl() %>%
   unnest_tokens(word, text) %>%

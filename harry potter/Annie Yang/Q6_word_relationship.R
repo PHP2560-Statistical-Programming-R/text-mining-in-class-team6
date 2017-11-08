@@ -37,7 +37,11 @@ bigram_counts
 # We can see that names are the most common pairs in Harrypotter series. 
 # Harry and ron usually appear together. 
 # Also, Ron and Hermione usually appear together.
-
+character_relationship<-bigram_counts %>% 
+  mutate (rank=row_number()) %>% 
+  filter((word1=="harry"& word2=="ron") | (word1=="ron" & word2=="harry")
+         |(word1=="ron" & word2 == "hermione")|(word1=="hermione" & word2 == "ron")
+         |(word1=="harry" & word2 == "hermione")|(word1=="hermione" & word2 == "harry"))
 
 
 
@@ -54,7 +58,9 @@ bigrams_united
 
 united_graph<-bigrams_united %>% filter(bigram=="professor mcgonagall") %>%
   ggplot(aes(series,n))+
-  geom_line()
+  geom_line()+
+  ylab("number of occurrence")+
+  ggtitle("Occurrence of Professor Mcgonagall")
 
 # We find that in goblet_of_fire, Harry and Ron usually appear together. 
 bigram_harry<-bigrams_united %>%
@@ -89,14 +95,18 @@ harry_graph<-harry_sentiment%>%
   mutate(word=reorder(word,contribution))%>%
   ggplot(aes(word,n*score,fill=n*score>0))+
   geom_col(show.legend = F)+
-  coord_flip()
+  xlab("sentiment words associated with Harry")+
+  ylab("sentiment score*number of occurrence")+
+  coord_flip()+
+  ggtitle("Harry Sentiment")
 
 
 
 
 
 # network of bigrams
-  
+# Filter for only relatively common combination
+
 bigram_graph<-bigram_counts%>%
   filter(n>60)%>%
   graph_from_data_frame()

@@ -10,4 +10,4 @@ source("01_getting_data.R")           # read and store the data
 source("02_cleaning.R")               # clean the data
 source("03_sentiment_analysis.R")     # conduct sentiment analysis
 source("04_visualization.R")          # create plot and graphs
-# rmarkdown::render("paper.Rmd", output_format = "html_document")
+rmarkdown::render("Paper.Rmd", output_format = "html_document")
