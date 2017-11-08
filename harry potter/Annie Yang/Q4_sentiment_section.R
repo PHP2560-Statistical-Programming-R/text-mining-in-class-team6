@@ -23,6 +23,8 @@ series_bing<-series%>%
   spread(sentiment,n,fill=0)%>%mutate(sentiment=positive-negative)%>%
   ggplot(aes(index,sentiment,fill=title))+
   geom_col(show.legend = F)+
+  ylab("sentiment=positive-negative")+
+  ggtitle(" BING sentiment ")+
   facet_wrap(~title,scales="free")
 ## Usually, there are more negative words in each section.
 
@@ -37,6 +39,8 @@ series_afinn<-series%>%
   summarise(sentiment=sum(score))%>% # Calculate the total score of each section throughout the novel
   ggplot(aes(index,sentiment,fill=title))+
   geom_col(show.legend = F)+
+  ylab("sentiment=sum(score)")+
+  ggtitle(" AFINN sentiment ")+
   facet_wrap(~title,scales="free")
 ## The results seem to be more reasonable by using AFINN lexicon.
 
@@ -55,6 +59,8 @@ sentence_sent<-stone_sentence%>%
 
 stone_graph<-ggplot(sentence_sent,aes(index,sentiment,fill=chapter))+
   geom_col(show.legend = F)+
+  ylab("sentiment=positive-negative")+
+  ggtitle(" BING sentiment - Philosophers Stone ")+
   facet_wrap(~chapter,ncol=5,scales="free")
 
 
