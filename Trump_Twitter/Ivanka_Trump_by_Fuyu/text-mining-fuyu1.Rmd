@@ -19,7 +19,7 @@ library(wordcloud)
 ```
 
 
-#Clean data
+# Clean data
 ```{r}
 #split date and time
 ivanka_trump_twitter <- read_csv("Data/ivanka_trump_twitter.csv")
@@ -193,7 +193,7 @@ word_by_time %>%
   labs(x = NULL, y = "Word Frequency")
 ```
 
-#sentiment analysis
+# Sentiment Analysis
 ```{r}
 library(tidytext)
 library(tidyr)
