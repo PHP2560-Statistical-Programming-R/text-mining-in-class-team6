@@ -200,6 +200,7 @@ bing_word_counts
  
 bing_word_counts %>%
   group_by(sentiment) %>%
+  filter(word != "trump") %>% # it is related to her name and her brand, should not be used in sentiment analysis
   top_n(10)%>%
   ungroup %>%
   mutate(word=reorder(word,n))%>%

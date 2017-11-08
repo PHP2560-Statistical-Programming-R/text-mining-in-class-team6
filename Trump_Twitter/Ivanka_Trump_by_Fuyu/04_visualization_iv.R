@@ -81,6 +81,7 @@ ggsave('Trump_Twitter/Ivanka_Trump_by_Fuyu/graph/sentence_sentiment.png')
 # Top 10 positive and negative words
 bing_word_counts %>%
   group_by(sentiment) %>%
+  filter(word != "trump") %>% # it is related to her name and her brand, should not be used in sentiment analysis
   top_n(10)%>%
   ungroup %>%
   mutate(word=reorder(word,n))%>%
