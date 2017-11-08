@@ -208,34 +208,48 @@ sentiments_bing %>%
     coord_flip() +
     ggtitle("Top 20 Words That Contributed to Positive + Negative Sentiment when Rating is OK")
 ```
+
 ## Blain's Analysis
-### Question 1: Which talks had the highest proportion of positive words?
+
+### Which talks had the highest proportion of positive words?
 
 
 ```{r, echo=FALSE}
+### Change df name to avoid conflicts with Jess' work
 transcripts_bing = sentiments_bing
 transcripts_nrc = sentiments_nrc
 
+### Add a total word count for each transcript
 transcripts_clean = transcripts_clean %>%
   group_by(name) %>%
   mutate(wordcount = n()) %>%
   ungroup()
 
-transcripts_bing %>%
+### Create a table which displays the top 20 positive talks
+top_table = transcripts_bing %>%
   filter(sentiment == "positive") %>%
   filter(wordcount > 510) %>%
   count(name, sentiment, wordcount) %>%
   mutate(positive_p = n / wordcount) %>%
+  select(-sentiment) %>%
   arrange(desc(positive_p)) %>%
-  top_n(20)
+  top_n(20, wt = positive_p)
+
+###kable function creates a nice markdown table
+kable(top_table, col.names = c("Name", "Word Count", "n", "p positive"), caption = "Most Positive Talks:")
 
 
 ```
-Talk about finding a cutoff for wordcount.
 
-### Which words contributed the most to sentiment scores?
+To obtain this chart we filtered presentations that had fewer than 510 words. This filter was chosen to help remove some artistic performances, which we did not want to include in the analysis. However, we see that "John Legend: Redemption Song" still made it through. 
+
+Many of the talks featured in the above table are what we would expect. Most have a positive sentiment in their title (such as "The Hidden Power"). Some talks were expected to be positive because of the speaker's position (for example, Michelle Obama makes it on the list).
+
+
+### Which words contributed the most often to sentiment scores?
 
 ```{r, echo = FALSE}
+
 ###Count by word and sentiment
 ###Then, group by sentiment
 ###Then, plot the top 20 words for each sentiment
@@ -248,17 +262,24 @@ transcripts_bing %>%
     mutate(word = reorder(word, n)) %>%
     ggplot(aes(x = word, y= n, fill = sentiment)) +
     geom_col(show.legend = FALSE) +
-    ylab("count") +
+    ylab("Count") +
+    xlab("Word") +
     facet_wrap(~ sentiment, scales = "free") +
     coord_flip() +
-    ggtitle("Top 20 Words That Contributed to Sentiment")
+    ggtitle("Top 20 Words That Contributed to Sentiment") +
+    theme_minimal()
 
 ```
 
+We can see from the chart above that the word "problem" contributed the most toward negative sentiment scores and that the word "well" contributed the most towards a positive score. It is interesting that the word "cancer" appears more times in the talks than "happy." However, this observation is not suprising when considering the problem solving nature of the TED conference. 
+
 ###Did sentiment change over time?
 
+
 ```{r, echo=FALSE}
-### Convert Unix time to a date:
+
+### Use lubridate to convert Unix time to a date
+### Then creaye a year column
 
 transcripts_bing = transcripts_bing %>%
   mutate(year = year(as.Date(as.POSIXct(transcripts_bing$film_date, origin="1970-01-01"))))
@@ -283,8 +304,13 @@ tagsdata = bing_by_year %>%
   slice(which.max(n)) %>%
   select(year, tag)
 
+### Join the top tags with the transcipt data
 bing_by_year = bing_by_year %>% inner_join(tagsdata) %>% rename(yeartoptag = tag)
 
+
+### Create plot with time on x axis and proportion on the y axis
+### Color by positive / negative sentiment
+### Add top tag of the year as text at position y = .5
 bing_by_year %>%
     count(year, sentiment, total_words, yeartoptag) %>%
     mutate(p = n / total_words) %>%
@@ -294,5 +320,122 @@ bing_by_year %>%
     xlab("Year") +
     ylab("Proportion of Sentiment Words") +
     ggtitle("Sentiment Through Time With Top Tag")+
-    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4")
+    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4") + 
+    theme_classic()
 ```
+
+From the chart above, there does seem to be a trend of decreasing positivity in TED talks over time. Three out of four times, when culture is the top tag of the year, the proportion of sentiment words seems to sharply decrease. To investigate this further, we looked to see if there was a difference in sentiment between talks that had a "culture" tag and talks that had a "technology" tag.
+
+### Was there a difference in positive sentiment between talks that were tagged "culture" and talks that were tagged "technology"?
+
+
+```{r, echo = FALSE}
+
+### Filter the talks that have culture as a tag using stringr
+### Then create a count of the total number of sentiment words
+### Then filter the positive sentiment rows and remove wordcount outliers (makes graph look nicer)
+### Then create a column for the proportion of positive sentiment words
+culture_bing = transcripts_bing %>%
+  filter(str_detect(tags, pattern = "culture")) %>%
+  group_by(name) %>%
+  mutate(sentwords = n()) %>%
+  ungroup() %>%
+  filter(sentiment == "positive", wordcount < 6000) %>%
+  count(name, sentiment, sentwords, wordcount) %>%
+  mutate(positive_p = n / sentwords)
+
+###Repeat the above steps for talks that have a technology tag
+technology_bing = transcripts_bing %>%
+  filter(str_detect(tags, pattern = "technology")) %>%
+  group_by(name) %>%
+  mutate(sentwords = n()) %>%
+  ungroup() %>%
+  filter(sentiment == "positive", wordcount <6000) %>%
+  count(name, sentiment, sentwords, wordcount) %>%
+  mutate(positive_p = n / sentwords)
+
+###Plot points for both culture and technology dataframes
+###Add a linear smoothing line with 95% confidence bands
+ggplot(culture_bing, aes(x = wordcount, y = positive_p)) +
+  geom_point(data = culture_bing, color = "cadetblue3") + 
+  geom_point(data = technology_bing, color = "coral2", alpha = .6) +
+  geom_smooth(method = "lm", aes(color = "Culture Talks"), size = 2) +
+  geom_smooth(data = technology_bing, method = "lm", aes(color = "Technology Talks"), size = 2) +
+  scale_color_manual("", values = c("cadetblue3", "coral2")) +
+  xlab("Word Count") +
+  ylab("Positive Sentiment Proportion") +
+  ggtitle("Positive Sentiment: Culture vs Technology") +
+  theme_classic()
+
+
+```
+
+At 95% confidence, there does not seem to be a difference in the proportion of positive sentiment words between culture talks and technology talks. Word count on the X axis would not always be a valid way to compare these proportions, but in this case there is a similar inverse trend. We can also look at the difference in mean positive sentiment word proportion:
+
+```{r, echo=FALSE}
+
+### Find mean proportion for all culture talks
+culturesum = culture_bing %>%
+  summarise(average_positive = mean(positive_p))
+
+### Find mean proportion for all tech talks
+techsum =  technology_bing %>%
+  summarise(average_positive = mean(positive_p))
+
+### Save the means for use in table 
+cultureval = culturesum[[1]]
+techval = techsum[[1]]
+
+###Create table which displays the means
+kable(tibble(cultureval, techval), col.names = c("Culture", "Technology"))
+```
+
+So, the overall difference between positive sentiment word proportion between the two tags is less than 3%.
+
+
+### Was there a difference in the trend of positive sentiments between culture and technology talks?
+
+
+```{r, echo = FALSE}
+
+### First filter for all talks containing culture tag
+### Then count the number of sentiment words in each talk
+### Then filter for positive sentiment and year > 2000 (for nicer graph)
+### Add a column for the proportion of positive sentiment words
+culture_bing_year = bing_by_year %>%
+  filter(str_detect(tags, pattern = "culture")) %>%
+  group_by(name) %>%
+  mutate(sentwords = n()) %>%
+  ungroup() %>%
+  filter(sentiment == "positive", year > 2000) %>%
+  count(name, sentiment, wordcount, sentwords, year) %>%
+  mutate(positive_p = n / sentwords)
+
+### Follow the steps above for talks containing a technology tag
+technology_bing_year = bing_by_year %>%
+  filter(str_detect(tags, pattern = "technology")) %>%
+  group_by(name) %>%
+  mutate(sentwords = n()) %>%
+  ungroup() %>%
+  filter(sentiment == "positive", year >2000) %>%
+  count(name, sentiment, wordcount, sentwords, year) %>%
+  mutate(positive_p = n / sentwords)
+
+### Plot y = Positive proportion, x = year
+### Add points for each talk, colored by tag
+### Add a linear smoothing line, colored by tag
+ggplot(culture_bing_year, aes(x = year, y = positive_p)) +
+  geom_point(data = culture_bing_year, color = "cadetblue3", alpha = .9) + 
+  geom_point(data = technology_bing_year, color = "coral2", alpha = .2) +
+  geom_smooth(method = "lm", se = FALSE, aes(color = "Culture Talks"), size = 2) +
+  geom_smooth(data = technology_bing_year, method = "lm", se = FALSE, aes(color = "Technology Talks"), size = 2) +
+  scale_color_manual("", values = c("cadetblue3", "coral2")) +
+  xlab("Year") +
+  ylab("Positive Sentiment Proportion") +
+  ggtitle("Positive Sentiment: Culture vs Technology") +
+  theme_classic()
+
+
+```
+
+There does appear to be a difference in trends between culture talks and techonolgy talks: culture talks seems to have decreased in positivity whereas positivity in the technology talks has remained relatively constant. 
