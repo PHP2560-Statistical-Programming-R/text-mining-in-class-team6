@@ -209,6 +209,10 @@ sentiments_bing %>%
     ggtitle("Top 20 Words That Contributed to Positive + Negative Sentiment when Rating is OK")
 ```
 
+
+
+
+
 ## Blain's Analysis
 
 ### Which talks had the highest proportion of positive words?
@@ -241,9 +245,11 @@ kable(top_table, col.names = c("Name", "Word Count", "n", "p positive"), caption
 
 ```
 
+
 To obtain this chart we filtered presentations that had fewer than 510 words. This filter was chosen to help remove some artistic performances, which we did not want to include in the analysis. However, we see that "John Legend: Redemption Song" still made it through. 
 
 Many of the talks featured in the above table are what we would expect. Most have a positive sentiment in their title (such as "The Hidden Power"). Some talks were expected to be positive because of the speaker's position (for example, Michelle Obama makes it on the list).
+
 
 
 ### Which words contributed the most often to sentiment scores?
@@ -272,6 +278,8 @@ transcripts_bing %>%
 ```
 
 We can see from the chart above that the word "problem" contributed the most toward negative sentiment scores and that the word "well" contributed the most towards a positive score. It is interesting that the word "cancer" appears more times in the talks than "happy." However, this observation is not suprising when considering the problem solving nature of the TED conference. 
+
+
 
 ###Did sentiment change over time?
 
@@ -305,7 +313,7 @@ tagsdata = bing_by_year %>%
   select(year, tag)
 
 ### Join the top tags with the transcipt data
-bing_by_year = bing_by_year %>% inner_join(tagsdata, wt = year) %>% rename(yeartoptag = tag)
+bing_by_year = bing_by_year %>% inner_join(tagsdata, by = "year") %>% rename(yeartoptag = tag)
 
 
 ### Create plot with time on x axis and proportion on the y axis
@@ -324,7 +332,10 @@ bing_by_year %>%
     theme_classic()
 ```
 
+
 From the chart above, there does seem to be a trend of decreasing positivity in TED talks over time. Three out of four times, when culture is the top tag of the year, the proportion of sentiment words seems to sharply decrease. To investigate this further, we will look to see if there was a difference in sentiment between talks that had a "culture" tag and talks that had a "technology" tag. But first, let's take another look at the proportion of sentiment words using a ridge plot:
+
+
 
 ```{r}
 
@@ -347,7 +358,10 @@ transcripts_bing %>%
 
 ```
 
+
 The ridge plot highlights that the proportion of sentiment words is usually higher on average than the proportion of negative words. However, this difference seems to be decreasing over time. The gray areas where the ridgelines overlap represent the number of talks where there was actually a higher proportion of negative words. 
+
+
 
 ### Was there a difference in positive sentiment between talks that were tagged "culture" and talks that were tagged "technology"?
 
@@ -393,7 +407,10 @@ ggplot(culture_bing, aes(x = wordcount, y = positive_p)) +
 
 ```
 
+
 At 95% confidence, there does not seem to be a difference in the proportion of positive sentiment words between culture talks and technology talks. Word count on the X axis would not always be a valid way to compare these proportions, but in this case there is a similar inverse trend. We can also look at the difference in mean positive sentiment word proportion:
+
+
 
 ```{r, echo=FALSE}
 
@@ -413,10 +430,13 @@ techval = techsum[[1]]
 kable(tibble(cultureval, techval), col.names = c("Culture", "Technology"))
 ```
 
+
 So, the overall difference between positive sentiment word proportion between the two tags is less than 3%.
 
 
+
 ### Was there a difference in the trend of positive sentiments between culture and technology talks?
+
 
 
 ```{r, echo = FALSE}
@@ -460,5 +480,6 @@ ggplot(culture_bing_year, aes(x = year, y = positive_p)) +
 
 
 ```
+
 
 There does appear to be a difference in trends between culture talks and techonolgy talks: culture talks seems to have decreased in positivity whereas positivity in the technology talks has remained relatively constant. 
