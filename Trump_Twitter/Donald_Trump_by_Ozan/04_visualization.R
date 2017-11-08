@@ -1,7 +1,7 @@
+# create directory for graphs
 dir.create("graph/", showWarnings = FALSE)
 
-
-
+# filter out the stop words and plot the ten most frequently-used words
 tidy_words %>% 
   anti_join(stop_words) %>%
   count(word, sort = T) %>%
@@ -14,10 +14,13 @@ tidy_words %>%
     ggtitle("Top 10 expressions") +
     theme(plot.title = element_text(hjust = 0.5))
 
+# save the plot
 ggsave('graph/top10.png')
 
+# save the image of foloowing wordclouds
 png('graph/wordcloud.png')
 
+# create weighted wordclouds
 par(mfrow = c(2,2))
 
 tidy_words %>% 
@@ -55,7 +58,6 @@ text(x=0.5, y=0.2, "2014")
 dev.off()
 
 
-
 word_counts_all %>%
   # Take the top 5 words for each sentiment
   top_n(5) %>%
@@ -70,7 +72,6 @@ word_counts_all %>%
   theme(plot.title = element_text(hjust = 0.5))
 
 ggsave('graph/top5_sentiments.png')
-
 
 
 word_counts_pos_neg %>%
@@ -92,7 +93,6 @@ word_counts_pos_neg %>%
 ggsave('graph/top10_pos_and_neg.png')
 
 
-
 sentiment_by_time %>%
   # Filter for positive and negative words
   filter(sentiment %in% c("positive", "negative")) %>%
@@ -109,8 +109,4 @@ sentiment_by_time %>%
   theme(plot.title = element_text(hjust = 0.5))
 
 ggsave('graph/change_over_time.png')
-
-
-
-
 

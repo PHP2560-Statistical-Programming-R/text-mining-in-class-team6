@@ -1,5 +1,3 @@
-
-
 # export the data manually from "http://www.trumptwitterarchive.com/archive" and save as a csv file
 
 # read the csv file 
