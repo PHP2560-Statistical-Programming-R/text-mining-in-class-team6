@@ -1,4 +1,4 @@
-names <- c("stringr","rebus","tidyverse","tidytext","lubridate","purrr","dplyr","readr")
+names <- c("stringr","rebus","tidyverse","tidytext","lubridate","purrr","dplyr","readr","wordcloud")
 
 
 for(i in names) {

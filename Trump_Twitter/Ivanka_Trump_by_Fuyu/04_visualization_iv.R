@@ -13,7 +13,7 @@ tidy_text %>%
   ggtitle("Top 10 expressions") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave('graph/top10_ivanka.png')
+ggsave('Trump_Twitter/Ivanka_Trump_by_Fuyu/graph/top10_ivanka.png')
 
 # most used word every year
 par(mfrow = c(3,3))
@@ -28,7 +28,7 @@ for(i in seq(2009,2017)){
     count(year,word,sort = T) %>%
     with(wordcloud(word,n,max.words =100,random.order = F, random.color = F, colors=brewer.pal(8, "Dark2")))
 }
-png('graph/wordcloud.png')
+png("Trump_Twitter/Ivanka_Trump_by_Fuyu/graph/wordcloud.png")
 dev.off()
 
 # Changes in word use
@@ -69,14 +69,14 @@ word_by_time %>%
   ggplot(aes(time_floor,count/time_total,color=word),show.legend = FALSE) +
   geom_line(size = 0.8) +
   labs(x = NULL, y = "Word Frequency")
-ggsave('graph/word_change_by_time')
+ggsave('Trump_Twitter/Ivanka_Trump_by_Fuyu/graph/word_change_by_time.png')
 
 # sentiment analysis by sentences in every month and every year
 library(ggplot2)
 ggplot(text_s, aes(index,sentiment,fill=year)) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~year,ncol=3,scales = "free_x")
-ggsave('graph/sentence_sentiment')
+ggsave('Trump_Twitter/Ivanka_Trump_by_Fuyu/graph/sentence_sentiment.png')
 
 # Top 10 positive and negative words
 bing_word_counts %>%
@@ -90,4 +90,4 @@ bing_word_counts %>%
   labs(y = "Contribution to sentiment",
        x = NULL) +
   coord_flip()
-ggsave('graph/top10_pos_and_neg.png')
+ggsave('Trump_Twitter/Ivanka_Trump_by_Fuyu/graph/top10_pos_and_neg.png')
