@@ -324,7 +324,30 @@ bing_by_year %>%
     theme_classic()
 ```
 
-From the chart above, there does seem to be a trend of decreasing positivity in TED talks over time. Three out of four times, when culture is the top tag of the year, the proportion of sentiment words seems to sharply decrease. To investigate this further, we looked to see if there was a difference in sentiment between talks that had a "culture" tag and talks that had a "technology" tag.
+From the chart above, there does seem to be a trend of decreasing positivity in TED talks over time. Three out of four times, when culture is the top tag of the year, the proportion of sentiment words seems to sharply decrease. To investigate this further, we will look to see if there was a difference in sentiment between talks that had a "culture" tag and talks that had a "technology" tag. But first, let's take another look at the proportion of sentiment words using a ridge plot:
+
+```{r}
+
+transcripts_bing %>%
+  group_by(name, sentiment, year) %>%
+  filter(year > 1998) %>%
+  count() %>%
+  spread(sentiment, n) %>%
+  mutate(total = negative + positive) %>%
+  mutate(Prop_Positive = positive / total) %>%
+  mutate(Prop_Negative = negative / total) %>%
+  ggplot(aes(x = Prop_Positive, y = as.factor(year))) + 
+  geom_density_ridges(aes(x = Prop_Negative, fill = "Negative"), alpha = .7, rel_min_height = .03, scale = .95, na.rm = TRUE)+
+  geom_density_ridges(aes(fill = "Positive"), alpha = .7, rel_min_height = .03, scale = .95, na.rm = TRUE) +
+  scale_fill_manual("", values = c("cadetblue3", "coral2")) +
+  theme_classic() +
+  ylab("Year") +
+  xlab("Proportion") +
+  ggtitle("Densities of  Sentiment Proportion by Time")
+
+```
+
+The ridge plot highlights that the proportion of sentiment words is usually higher on average than the proportion of negative words. However, this difference seems to be decreasing over time. The gray areas where the ridgelines overlap represent the number of talks where there was actually a higher proportion of negative words. 
 
 ### Was there a difference in positive sentiment between talks that were tagged "culture" and talks that were tagged "technology"?
 
