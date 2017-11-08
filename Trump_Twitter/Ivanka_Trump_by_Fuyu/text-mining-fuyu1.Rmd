@@ -159,12 +159,12 @@ library(lubridate)
 word_by_time <- data_tidy %>%
   mutate(timestamp=ymd(date))%>%
   mutate(time_floor = floor_date(timestamp,unit = "1 month")) %>%
-  count(time_floor,word) %>%
+  count(time_floor,word) %>% #The count column tells us how many times that person used that word in that time bin
   ungroup() %>%
   group_by(time_floor)%>%
-  mutate(time_total = sum(n)) %>%
+  mutate(time_total = sum(n)) %>% # the time_total column tells us how many words that person used during that time bin
   group_by(word)%>%
-  mutate(word_total = sum(n)) %>%
+  mutate(word_total = sum(n)) %>% # the word_total column tells us how many times that person used that word over the whole year
   ungroup() %>%
   rename(count = n) %>%
   filter(word_total > 400)
