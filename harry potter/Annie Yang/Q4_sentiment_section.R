@@ -25,6 +25,7 @@ series_bing<-series%>%
   geom_col(show.legend = F)+
   ylab("sentiment=positive-negative")+
   ggtitle(" BING sentiment ")+
+  mutate(title= factor(title,levels=harry_title))%>%+
   facet_wrap(~title,scales="free")
 ## Usually, there are more negative words in each section.
 
@@ -41,6 +42,7 @@ series_afinn<-series%>%
   geom_col(show.legend = F)+
   ylab("sentiment=sum(score)")+
   ggtitle(" AFINN sentiment ")+
+  mutate(title= factor(title,levels=harry_title))%>%+
   facet_wrap(~title,scales="free")
 ## The results seem to be more reasonable by using AFINN lexicon.
 
