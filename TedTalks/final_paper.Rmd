@@ -26,6 +26,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, echo = FALSE, fig.width= 11}
+## take the transcript data, that contains a row for each word spoken, filter it to
+## be one row for each ted talk and its max rating
 rating_dist <- transcripts_clean %>%
   distinct(name, max_rating) %>%
   group_by(max_rating) %>%
@@ -43,6 +45,8 @@ ggplot(rating_dist, aes(reorder(max_rating, n), n, fill = max_rating)) +
 Before performing any sentiment analysis or looking at word choice, I want to look at the overall distribution of words used across all Ted Talks. In the plot below, we see that the word 'like' has approximately double the frequency of the next most common word. We know that this is a filler word that does not have a true sentiment or postive/negative connotation in colloquial English, therefore, we will exclude 'like' from further plots and analyses. We will also remove the word "right" as it is the 3rd most common word used in Ted Talks and it's sentiment is not obvious out of context - it could be a positive word meaning correct but it could also mean the direction which doesn't hold a true sentiment.
 
 ```{r, echo = FALSE, fig.width=11}
+# take the transcript data generated using the bing lexicon, group by word in order 
+# to plot the distribution
 word_freq <- sentiments_bing %>%
   group_by(word) %>%
   count() %>%
@@ -60,6 +64,7 @@ ggplot(word_freq, aes(reorder(word,n), n, fill = 10)) +
 The distribution of the top 50 words used in ted talks after removing "like" + "right"
 
 ```{r, echo = FALSE, fig.width=11}
+#remove rows that have word = like or right
 word_freq <- word_freq %>% filter(!word %in% c("like", "right"))
 
 ggplot(word_freq, aes(reorder(word,n), n, fill = 10)) + 
@@ -75,6 +80,9 @@ Next, I will use the nrc lexicon to look at the distribution of sentiments, as d
 When looking at the plots below, there does not appear to be any large differences in the distribution among ted talks based on their max rating.
 
 ```{r, echo = FALSE, fig.width=11,fig.height=10}
+# take the transcript data generated using the nrc lexicon - remove words like and right and 
+# sentiments that are positive or negative
+# use to plot distribution of sentiments in ted talks by rating
 sentiment_plot <- sentiments_nrc %>%
   filter(!word %in% c("like", "right")) %>%
   filter(!sentiment %in% c("positive", "negative")) %>%
@@ -103,13 +111,15 @@ In the plots below, we see a lot of the most common words - from the word distri
 Some interesting findings shown by these plots are as follows. "Fear" and "death" are among the top 10 words used in talks with a max rating of courageous. "Cancer" is one of the top ten words used in talks with a max rating of informative. Talks with an obnoxious max rating had the most interesting set of top ten words used - "risk", "complex", "virus", "unexpected", "injury", "died". OK talks also had a unique list of top ten words, including "award", "winner", and "cave".
 
 ```{r, echo = FALSE, fig.width = 11,fig.height=11}
+#use bing lexicon data
+
 word_counts <- sentiments_bing %>%
   count(max_rating, word) %>%
   group_by(max_rating) %>%
   mutate(rating_counts = sum(n)) %>%
   ungroup() %>%
   mutate(prop = n / rating_counts) 
-
+#take top ten words, after by sorting by descending frequency
 top <- word_counts %>%
   arrange(desc(prop)) %>%
   group_by(max_rating) %>%
@@ -130,6 +140,7 @@ Instead of looking at the distribution of sentiments provided by the nrc lexicon
 
 Most of the talks appear to have a higher frequency of words that contribute to positive sentiment. The talks with max ratings "Courageous", "Obnoxious", and "OK" have more negative words than postive words. We will explore these talks further to see which words contribute to their sentiments in both the bing and nrc lexicons.
 ```{r, echo = FALSE, fig.width=11}
+#bing lexicon, distribution of sentiment across max ratings
 pos_neg <- sentiments_bing %>%
   count(max_rating, sentiment) %>%
   group_by(max_rating) %>% 
@@ -154,6 +165,7 @@ For Ted Talks with a max rating of "Courageous", "Obnoxious", or "OK" I will pre
 When the max rating is "Courageous" we see the top 20 negative words used are words that are associated with topics that are difficult to talk about - death, corruption, killed, lost, die, died, dead, pain, suicide, depression.
 
 ```{r, echo = FALSE, fig.width = 11}
+#distribution of postive and negative words used in talks that were rated courageous
 sentiments_bing %>%
     filter(max_rating %in% c("Courageous")) %>%
     count(word, sentiment) %>%
@@ -174,6 +186,7 @@ sentiments_bing %>%
 When the max rating is "Obnoxious" - the words or topics that may contribute to the higher negative sentiment are not obvious. We see an interesting group of words in the top 20 most used negative words - virus, neurotic, weird, untouched, epidemic, blunt.
 
 ```{r, echo = FALSE, fig.width = 11}
+#distribution of postive and negative words used in talks that were rated obnoxious
 sentiments_bing %>%
     filter(max_rating %in% c("Obnoxious")) %>%
     count(word, sentiment) %>%
@@ -193,6 +206,7 @@ sentiments_bing %>%
 When the max rating is "OK" we see an even less cohesive group of words that contribute to the negative sentiment. The top 20 negative words include - silly, limited, funky, dizzy, died, destruction, cheap, blind, and betray. These words do have a negative connotation but they are not obviously associated with things that are difficult to talk about as seen in the "Courageous" group. This mismatched group of negative words makes sense for a talk that was rated "OK". Nothing too negative or positive.
 
 ```{r, echo = FALSE, fig.width = 11}
+#distribution of postive and negative words used in talks that were rated OK
 sentiments_bing %>%
     filter(max_rating %in% c("OK")) %>%
     count(word, sentiment) %>%

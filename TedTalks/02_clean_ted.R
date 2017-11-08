@@ -21,6 +21,7 @@ for (i in 1:nrow(full_data)){
     )
 }
 
+## extract max rating for each talk from the ratings column
 for(i in 1:nrow(full_data)) {
   rating_string <- str_sub(full_data$ratings[i], 2,-2)
   rating_vector <- unlist(strsplit(rating_string, split="}"))
@@ -32,10 +33,14 @@ for(i in 1:nrow(full_data)) {
   full_data$max_rating[i] <- names[which.max(counts)]
 }
 
+#save full_data 
 save(full_data, file = "TedTalks/data/full_data.Rda")
 
+
+#use unnest_tokens to create a separate row for each word in each talk
 transcripts_clean <- full_data %>% unnest_tokens(word, transcript)
 
+#add a wordcount column to the transcripts_clean data
 transcripts_clean <- transcripts_clean %>%
   group_by(name) %>%
   mutate(wordcount = n()) %>%
@@ -43,6 +48,7 @@ transcripts_clean <- transcripts_clean %>%
 
 save(transcripts_clean, file = "TedTalks/data/transcripts_clean.Rda")
 
+#join transcript data with the bing + nrc lexicons, respectively
 sentiments_bing <- transcripts_clean %>% inner_join(get_sentiments("bing")) %>% filter(!word %in% c("like", "right"))
 save(sentiments_bing, file = "TedTalks/data/sentiments_bing.Rda")
 
