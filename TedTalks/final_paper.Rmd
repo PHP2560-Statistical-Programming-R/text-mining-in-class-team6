@@ -213,6 +213,14 @@ sentiments_bing %>%
 
 
 
+
+***
+
+
+
+
+
+
 ## Blain's Analysis
 
 ### Which talks had the highest proportion of positive words?
@@ -284,7 +292,7 @@ We can see from the chart above that the word "problem" contributed the most tow
 ###Did sentiment change over time?
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=7, fig.width=7}
 
 ### Use lubridate to convert Unix time to a date
 ### Then creaye a year column
@@ -328,7 +336,7 @@ bing_by_year %>%
     xlab("Year") +
     ylab("Proportion of Sentiment Words") +
     ggtitle("Sentiment Through Time With Top Tag")+
-    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4") + 
+    geom_text(aes(x = year, y = .5, label = yeartoptag), angle = 90, color = "hotpink4", size = 4.5) + 
     theme_classic()
 ```
 
@@ -337,7 +345,7 @@ From the chart above, there does seem to be a trend of decreasing positivity in 
 
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height=8, fig.width=7}
 
 ### Count the number of positive and negative sentiment words in each talk, grouped by year
 transcripts_bing %>%
@@ -352,8 +360,8 @@ transcripts_bing %>%
   mutate(Prop_Negative = negative / total) %>%
 ### Plot the density proportions separated by year using ggridges
   ggplot(aes(x = Prop_Positive, y = as.factor(year))) + 
-  geom_density_ridges(aes(x = Prop_Negative, fill = "Negative"), alpha = .7, rel_min_height = .03, scale = .95, na.rm = TRUE)+
-  geom_density_ridges(aes(fill = "Positive"), alpha = .7, rel_min_height = .03, scale = .95, na.rm = TRUE) +
+  geom_density_ridges(aes(x = Prop_Negative, fill = "Negative"), alpha = .7, rel_min_height = .03, scale = 1, na.rm = TRUE)+
+  geom_density_ridges(aes(fill = "Positive"), alpha = .7, rel_min_height = .03, scale = 1, na.rm = TRUE) +
   scale_fill_manual("", values = c("cadetblue3", "coral2")) +
   theme_classic() +
   ylab("Year") +
@@ -370,7 +378,7 @@ The ridge plot highlights that the proportion of sentiment words is usually high
 ### Was there a difference in positive sentiment between talks that were tagged "culture" and talks that were tagged "technology"?
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height=7, fig.width=8}
 
 ### Filter the talks that have culture as a tag using stringr
 ### Then create a count of the total number of sentiment words
@@ -443,7 +451,7 @@ So, the overall difference between positive sentiment word proportion between th
 
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height=7, fig.width=7}
 
 ### First filter for all talks containing culture tag
 ### Then count the number of sentiment words in each talk
