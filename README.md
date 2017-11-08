@@ -6,7 +6,7 @@ Go into the TedTalks folder + run makefile.R, the knitted output file should gen
 
 -----Instructions for HarryPotter Analysis, Completed by Yiquan Xu + Annie Yang -------
 
-Go into the harry potter folder, and go into Annie Yang folder + run makefile.R, the knitted output file should generate in the same folder and will be called textmining_Annie.html
+Go into the harry potter folder, and go into Annie Yang folder + run makefile.R, the knitted output file should generate in the same folder and will be called textmining_Annie.html. Go into yiquan folder + run makefile_harry.R, the knitted output file is in the same folder and is called textmining_Yiquan_Xu.html.
 
 ------------------------------------------------------------------------------------------
 
